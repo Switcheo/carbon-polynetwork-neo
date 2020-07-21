@@ -58,8 +58,11 @@ namespace Nep5Proxy
         }
 
         // used to delegate an asset to be managed by this contract
-        [DisplayName("delegateAsset")]
-        public static bool DelegateAsset(BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply, byte[] assetHash)
+#if DEBUG
+        [DisplayName("delegateAsset")] //Only for ABI file
+        public static bool DelegateAsset(BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply) => true;
+#endif
+        private static bool DelegateAsset(BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply, byte[] assetHash)
         {
           if (nativeChainId == 0)
           {
@@ -121,8 +124,11 @@ namespace Nep5Proxy
         }
 
         // called by the CCM to register assets from a connected chain
-        [DisplayName("registerAsset")]
-        public static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
+#if DEBUG
+        [DisplayName("registerAsset")] //Only for ABI file
+        public static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId) => true;
+#endif
+        private static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
         {
           //only allowed to be called by CCMC
           if (caller.AsBigInteger() != CCMCScriptHash.AsBigInteger())

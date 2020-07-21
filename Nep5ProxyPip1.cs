@@ -121,7 +121,8 @@ namespace Nep5Proxy
         }
 
         // called by the CCM to register assets from a connected chain
-        private static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
+        [DisplayName("registerAsset")]
+        public static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
         {
           //only allowed to be called by CCMC
           if (caller.AsBigInteger() != CCMCScriptHash.AsBigInteger())

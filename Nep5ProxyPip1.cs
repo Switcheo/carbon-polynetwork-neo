@@ -22,8 +22,6 @@ namespace Nep5Proxy
         public static event Action<byte[], BigInteger, byte[], byte[]> DelegateAssetEvent;
         public static event Action<byte[], byte[], BigInteger, byte[], byte[], BigInteger, byte[]> LockEvent;
         public static event Action<byte[], byte[], BigInteger> UnlockEvent;
-        public static event Action<byte[], BigInteger, byte[], BigInteger> BindAssetHashEvent;
-        public static event Action<BigInteger, byte[]> BindProxyHashEvent;
 
         // Storage prefix
         private static readonly byte[] FromAssetListPrefix = new byte[] { 0x01, 0x01 }; // "FromAssetList";
@@ -41,7 +39,7 @@ namespace Nep5Proxy
                 if (method == "registerAsset")
                     return RegisterAsset((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
                 if (method == "lock")
-                    return Lock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], (byte[])args[3], (BigInteger)args[4]);
+                    return Lock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], (byte[])args[3], (byte[])args[4], (byte[])args[5], (BigInteger)args[6], (bool)args[7], (BigInteger)args[8], (byte[])args[9]);
                 if (method == "unlock")
                     return Unlock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
             }
@@ -64,63 +62,63 @@ namespace Nep5Proxy
 #endif
         private static bool DelegateAsset(BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply, byte[] assetHash)
         {
-          if (nativeChainId == 0)
-          {
-            Runtime.Notify("The parameter nativeChainId must not be zero");
-            return false;
-          }
-          if (nativeLockProxy.Length == 0)
-          {
-            Runtime.Notify("The parameter nativeLockProxy must not be empty");
-            return false;
-          }
-          if (nativeAssetHash.Length == 0)
-          {
-            Runtime.Notify("The parameter nativeAssetHash must not be empty");
-            return false;
-          }
+            if (nativeChainId == 0)
+            {
+                Runtime.Notify("The parameter nativeChainId must not be zero");
+                return false;
+            }
+            if (nativeLockProxy.Length == 0)
+            {
+                Runtime.Notify("The parameter nativeLockProxy must not be empty");
+                return false;
+            }
+            if (nativeAssetHash.Length == 0)
+            {
+                Runtime.Notify("The parameter nativeAssetHash must not be empty");
+                return false;
+            }
 
-          byte[] key = GetRegistryKey(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+            byte[] key = GetRegistryKey(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
 
-          StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-          if (registry.Get(key).Length != 0)
-          {
-            Runtime.Notify("This asset has already been registered");
-            return false;
-          }
+            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
+            if (registry.Get(key).Length != 0)
+            {
+                Runtime.Notify("This asset has already been registered");
+                return false;
+            }
 
-          StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
-          if (balances.Get(key).Length != 0)
-          {
-            Runtime.Notify("The balance for this asset must be zero");
-            return false;
-          }
+            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
+            if (balances.Get(key).Length != 0)
+            {
+                Runtime.Notify("The balance for this asset must be zero");
+                return false;
+            }
 
-          if (GetAssetBalance(assetHash) != delegatedSupply)
-          {
-            Runtime.Notify("The controlled balance does not match the delegatedSupply param");
-            return false;
-          }
+            if (GetAssetBalance(assetHash) != delegatedSupply)
+            {
+                Runtime.Notify("The controlled balance does not match the delegatedSupply param");
+                return false;
+            }
 
-          // mark asset in registry
-          registry.Put(key, 0x01);
+            // mark asset in registry
+            registry.Put(key, 0x01);
 
-          var inputArgs = SerializeRegisterAssetArgs(assetHash, nativeAssetHash);
+            var inputArgs = SerializeRegisterAssetArgs(assetHash, nativeAssetHash);
 
-          // construct params for CCMC
-          var param = new object[] { nativeChainId, nativeLockProxy, "registerAsset", inputArgs };
-          // dynamic call CCMC
-          var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
-          bool success = (bool)ccmc("CrossChain", param);
-          if (!success)
-          {
-            Runtime.Notify("Failed to call CCMC.");
-            return false;
-          }
+            // construct params for CCMC
+            var param = new object[] { nativeChainId, nativeLockProxy, "registerAsset", inputArgs };
+            // dynamic call CCMC
+            var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
+            bool success = (bool)ccmc("CrossChain", param);
+            if (!success)
+            {
+                Runtime.Notify("Failed to call CCMC.");
+                return false;
+            }
 
-          DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+            DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
 
-          return true;
+            return true;
         }
 
         // called by the CCM to register assets from a connected chain
@@ -130,48 +128,37 @@ namespace Nep5Proxy
 #endif
         private static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
         {
-          //only allowed to be called by CCMC
-          if (caller.AsBigInteger() != CCMCScriptHash.AsBigInteger())
-          {
-            Runtime.Notify("Only allowed to be called by CCMC");
-            Runtime.Notify(caller);
-            Runtime.Notify(CCMCScriptHash);
-            return false;
-          }
+            //only allowed to be called by CCMC
+            if (caller.AsBigInteger() != CCMCScriptHash.AsBigInteger())
+            {
+                Runtime.Notify("Only allowed to be called by CCMC");
+                Runtime.Notify(caller);
+                Runtime.Notify(CCMCScriptHash);
+                return false;
+            }
 
-          object[] results = DeserializeRegisterAssetArgs(inputBytes);
-          var assetHash = (byte[])results[0];
-          var nativeAssetHash = (byte[])results[1];
+            object[] results = DeserializeRegisterAssetArgs(inputBytes);
+            var assetHash = (byte[])results[0];
+            var nativeAssetHash = (byte[])results[1];
 
-          byte[] key = GetRegistryKey(nativeAssetHash, fromChainId, fromProxyContract, assetHash);
+            byte[] key = GetRegistryKey(nativeAssetHash, fromChainId, fromProxyContract, assetHash);
 
-          StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-          if (registry.Get(key).Length != 0)
-          {
-            Runtime.Notify("This asset has already been registered");
-            return false;
-          }
+            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
+            if (registry.Get(key).Length != 0)
+            {
+                Runtime.Notify("This asset has already been registered");
+                return false;
+            }
 
-          // mark asset in registry
-          registry.Put(key, 0x01);
+            // mark asset in registry
+            registry.Put(key, 0x01);
 
-          return true;
+            return true;
         }
 
         // used to lock asset into proxy contract
         [DisplayName("lock")]
-        public static bool Lock(
-          byte[] fromAssetHash,
-          byte[] fromAddress,
-          BigInteger toChainId,
-          byte[] targetProxyHash,
-          byte[] toAssetHash,
-          byte[] toAddress,
-          BigInteger amount,
-          bool deductFeeInLock,
-          BigInteger feeAmount,
-          byte[] feeAddress
-        )
+        public static bool Lock(byte[] fromAssetHash, byte[] fromAddress, BigInteger toChainId, byte[] targetProxyHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, bool deductFeeInLock, BigInteger feeAmount, byte[] feeAddress)
         {
             if (fromAssetHash.Length != 20)
             {
@@ -183,15 +170,18 @@ namespace Nep5Proxy
                 Runtime.Notify("The parameter fromAddress SHOULD be 20-byte long.");
                 return false;
             }
-            if (toChainId == 0) {
+            if (toChainId == 0)
+            {
                 Runtime.Notify("The parameter toChainId SHOULD not be zero.");
                 return false;
             }
-            if (targetProxyHash.Length == 0) {
+            if (targetProxyHash.Length == 0)
+            {
                 Runtime.Notify("The parameter targetProxyHash SHOULD not be empty.");
                 return false;
             }
-            if (toAssetHash.Length == 0) {
+            if (toAssetHash.Length == 0)
+            {
                 Runtime.Notify("The parameter toAssetHash SHOULD not be empty.");
                 return false;
             }
@@ -212,17 +202,17 @@ namespace Nep5Proxy
             }
             if (feeAmount > 0)
             {
-              if (feeAddress.Length == 0)
-              {
-                Runtime.Notify("The parameter feeAddress SHOULD not be empty.");
-                return false;
-              }
+                if (feeAddress.Length == 0)
+                {
+                    Runtime.Notify("The parameter feeAddress SHOULD not be empty.");
+                    return false;
+                }
 
-              if (deductFeeInLock && feeAddress.Length != 20)
-              {
-                Runtime.Notify("The parameter feeAddress SHOULD be 20-byte long.");
-                return false;
-              }
+                if (deductFeeInLock && feeAddress.Length != 20)
+                {
+                    Runtime.Notify("The parameter feeAddress SHOULD be 20-byte long.");
+                    return false;
+                }
             }
 
             // transfer asset from fromAddress to proxy contract address, use dynamic call to call nep5 token's contract "transfer"
@@ -237,31 +227,32 @@ namespace Nep5Proxy
 
             byte[] key = GetRegistryKey(fromAssetHash, toChainId, targetProxyHash, toAssetHash);
             StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-            if (registry.Get(key) != 0x01)
+            if (registry.Get(key).Length == 0)
             {
-              Runtime.Notify("This asset has not yet been registered");
-              return false;
+                Runtime.Notify("This asset has not yet been registered");
+                return false;
             }
 
-            if (feeAmount > 0 && deductFeeInLock) {
-              // reduce amount by the feeAmount
-              amount = amount - feeAmount;
-              // set the feeAmount to zero since the fee has already been deducted
-              feeAmount = 0;
+            if (feeAmount > 0 && deductFeeInLock)
+            {
+                // reduce amount by the feeAmount
+                amount = amount - feeAmount;
+                // set the feeAmount to zero since the fee has already been deducted
+                feeAmount = 0;
 
-              // transfer fee to feeAddress
-              success = (bool)nep5Contract("transfer", new object[] { currentHash, feeAddress, amount });
-              if (!success)
-              {
-                  Runtime.Notify("Failed to transfer NEP5 token to feeAddress.");
-                  return false;
-              }
+                // transfer fee to feeAddress
+                success = (bool)nep5Contract("transfer", new object[] { currentHash, feeAddress, amount });
+                if (!success)
+                {
+                    Runtime.Notify("Failed to transfer NEP5 token to feeAddress.");
+                    return false;
+                }
             }
 
             // construct args for proxy contract on target chain
             var inputArgs = SerializeArgs(fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress);
             // construct params for CCMC
-            var param = new object[] { toChainId, toProxyHash, "unlock", inputArgs };
+            var param = new object[] { toChainId, targetProxyHash, "unlock", inputArgs };
             // dynamic call CCMC
             var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
             success = (bool)ccmc("CrossChain", param);
@@ -271,10 +262,10 @@ namespace Nep5Proxy
                 return false;
             }
 
-            success = IncreaseBalance(key, amount)
+            success = IncreaseBalance(key, amount);
             if (!success)
             {
-                Runtime.Notify("Failed to call increase balance.");
+                Runtime.Notify("Failed to increase balance.");
                 return false;
             }
 
@@ -300,23 +291,15 @@ namespace Nep5Proxy
                 return false;
             }
 
-            byte[] storedProxy = GetProxyHash(fromChainId);
-
-            // check the fromContract is stored, so we can trust it
-            if (fromProxyContract.AsBigInteger() != storedProxy.AsBigInteger())
-            {
-                Runtime.Notify("From proxy contract not found.");
-                Runtime.Notify(fromProxyContract);
-                Runtime.Notify(fromChainId);
-                Runtime.Notify(storedProxy);
-                return false;
-            }
-
             // parse the args bytes constructed in source chain proxy contract, passed by multi-chain
             object[] results = DeserializeArgs(inputBytes);
-            var toAssetHash = (byte[])results[0];
-            var toAddress = (byte[])results[1];
-            var amount = (BigInteger)results[2];
+            var fromAssetHash = (byte[])results[0];
+            var toAssetHash = (byte[])results[1];
+            var toAddress = (byte[])results[2];
+            var amount = (BigInteger)results[3];
+            var feeAmount = (BigInteger)results[4];
+            var feeAddress = (byte[])results[5];
+
             if (toAssetHash.Length != 20)
             {
                 Runtime.Notify("ToChain Asset script hash SHOULD be 20-byte long.");
@@ -327,20 +310,56 @@ namespace Nep5Proxy
                 Runtime.Notify("ToChain Account address SHOULD be 20-byte long.");
                 return false;
             }
-            if (amount < 0)
+            if (amount <= 0)
             {
                 Runtime.Notify("ToChain Amount SHOULD not be less than 0.");
+                return false;
+            }
+            if (feeAmount < 0)
+            {
+                Runtime.Notify("ToChain FeeAmount SHOULD not be less than 0.");
+                return false;
+            }
+            if (feeAmount > 0 && feeAddress.Length != 20)
+            {
+                Runtime.Notify("ToChain FeeAddress SHOULD be 20-byte long.");
+                return false;
+            }
+
+            byte[] key = GetRegistryKey(toAssetHash, fromChainId, fromProxyContract, fromAssetHash);
+            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
+            if (registry.Get(key).Length == 0)
+            {
+                Runtime.Notify("This asset has not yet been registered");
+                return false;
+            }
+            bool success = DecreaseBalance(key, amount);
+            if (!success)
+            {
+                Runtime.Notify("Insufficient balance to unlock.");
                 return false;
             }
 
             // transfer asset from proxy contract to toAddress
             byte[] currentHash = ExecutionEngine.ExecutingScriptHash; // this proxy contract hash
             var nep5Contract = (DynCall)toAssetHash.ToDelegate();
-            bool success = (bool)nep5Contract("transfer", new object[] { currentHash, toAddress, amount });
+            var afterFeeAmount = amount - feeAmount;
+            success = (bool)nep5Contract("transfer", new object[] { currentHash, toAddress, afterFeeAmount });
             if (!success)
             {
                 Runtime.Notify("Failed to transfer NEP5 token to toAddress.");
                 return false;
+            }
+
+            if (feeAmount > 0)
+            {
+                success = (bool)nep5Contract("transfer", new object[] { currentHash, feeAddress, feeAmount });
+                if (!success)
+                {
+                    Runtime.Notify("Failed to transfer NEP5 token to feeAddress.");
+                    return false;
+                }
+                UnlockEvent(toAssetHash, feeAddress, feeAmount);
             }
 
             UnlockEvent(toAssetHash, toAddress, amount);
@@ -355,35 +374,35 @@ namespace Nep5Proxy
 
         private static bool IncreaseBalance(byte[] key, BigInteger amount)
         {
-          if (amount < 0)
-          {
-            return false;
-          }
+            if (amount < 0)
+            {
+                return false;
+            }
 
-          StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
-          BigInteger currentBalance = balances.Get(Key).AsBigInteger();
-          balances.Put(key, currentBalance)
+            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
+            BigInteger currentBalance = balances.Get(key).AsBigInteger();
+            balances.Put(key, currentBalance);
 
-          return true;
+            return true;
         }
 
         private static bool DecreaseBalance(byte[] key, BigInteger amount)
         {
-          if (amount < 0)
-          {
-            return false;
-          }
+            if (amount < 0)
+            {
+                return false;
+            }
 
-          StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
-          BigInteger currentBalance = balances.Get(Key).AsBigInteger();
-          BigInteger newBalance = currentBalance - amount;
-          if (newBalance < 0)
-          {
-            return false;
-          }
+            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
+            BigInteger currentBalance = balances.Get(key).AsBigInteger();
+            BigInteger newBalance = currentBalance - amount;
+            if (newBalance < 0)
+            {
+                return false;
+            }
 
-          balances.Put(key, newBalance)
-          return true;
+            balances.Put(key, newBalance);
+            return true;
         }
 
         private static object[] ReadUint255(byte[] buffer, int offset)
@@ -457,7 +476,10 @@ namespace Nep5Proxy
         {
             var offset = 0;
             var res = ReadVarBytes(buffer, offset);
-            var assetAddress = res[0];
+            var fromAssetHash = res[0];
+
+            res = ReadVarBytes(buffer, (int)res[1]);
+            var toAssetHash = res[0];
 
             res = ReadVarBytes(buffer, (int)res[1]);
             var toAddress = res[0];
@@ -465,7 +487,13 @@ namespace Nep5Proxy
             res = ReadUint255(buffer, (int)res[1]);
             var amount = res[0];
 
-            return new object[] { assetAddress, toAddress, amount };
+            res = ReadUint255(buffer, (int)res[1]);
+            var feeAmount = res[0];
+
+            res = ReadVarBytes(buffer, (int)res[1]);
+            var feeAddress = res[0];
+
+            return new object[] { fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress };
         }
 
         private static byte[] SerializeRegisterAssetArgs(byte[] assetHash, byte[] nativeAssetHash)

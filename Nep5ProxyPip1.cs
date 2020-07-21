@@ -83,14 +83,14 @@ namespace Nep5Proxy
           byte[] key = GetRegistryKey(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
 
           StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-          if (registry.Get(key).length != 0)
+          if (registry.Get(key).Length != 0)
           {
             Runtime.Notify("This asset has already been registered");
             return false;
           }
 
           StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
-          if (balances.Get(key).length != 0)
+          if (balances.Get(key).Length != 0)
           {
             Runtime.Notify("The balance for this asset must be zero");
             return false;
@@ -111,7 +111,7 @@ namespace Nep5Proxy
           var param = new object[] { nativeChainId, nativeLockProxy, "registerAsset", inputArgs };
           // dynamic call CCMC
           var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
-          success = (bool)ccmc("CrossChain", param);
+          bool success = (bool)ccmc("CrossChain", param);
           if (!success)
           {
             Runtime.Notify("Failed to call CCMC.");
@@ -146,7 +146,7 @@ namespace Nep5Proxy
           byte[] key = GetRegistryKey(nativeAssetHash, fromChainId, fromProxyContract, assetHash);
 
           StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-          if (registry.Get(key).length != 0)
+          if (registry.Get(key).Length != 0)
           {
             Runtime.Notify("This asset has already been registered");
             return false;
@@ -160,7 +160,17 @@ namespace Nep5Proxy
 
         // used to lock asset into proxy contract
         [DisplayName("lock")]
-        public static bool Lock(byte[] fromAssetHash, byte[] fromAddress, BigInteger toChainId, byte[] toAddress, BigInteger amount)
+        public static bool Lock(
+          byte[] fromAssetHash,
+          BigInteger toChainId,
+          byte[] targetProxyHash,
+          byte[] toAssetHash,
+          byte[] toAddress,
+          BigInteger amount,
+          bool deductFeeInLock,
+          BigInteger feeAmount,
+          byte[] feeAddress
+        )
         {
             if (fromAssetHash.Length != 20)
             {
@@ -294,7 +304,7 @@ namespace Nep5Proxy
 
         private static byte[] GetRegistryKey(byte[] assetHash, BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash)
         {
-          return Hash256(assetHash.Concat(nativeChainId.AsByteArray()).Concat(nativeLockProxy).Concat(nativeAssetHash))
+            return Hash256(assetHash.Concat(nativeChainId.AsByteArray()).Concat(nativeLockProxy).Concat(nativeAssetHash));
         }
 
         private static object[] ReadUint255(byte[] buffer, int offset)

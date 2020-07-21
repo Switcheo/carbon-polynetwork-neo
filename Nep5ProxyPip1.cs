@@ -19,6 +19,7 @@ namespace Nep5Proxy
         private delegate object DynCall(string method, object[] args); // dynamic call
 
         // Events
+        public static event Action<byte[], BigInteger, byte[], byte[]> DelegateAssetEvent;
         public static event Action<byte[], byte[], BigInteger, byte[], byte[], BigInteger> LockEvent;
         public static event Action<byte[], byte[], BigInteger> UnlockEvent;
         public static event Action<byte[], BigInteger, byte[], BigInteger> BindAssetHashEvent;
@@ -98,19 +99,23 @@ namespace Nep5Proxy
 
           // mark asset in registry
           registry.Put(key, 0x01);
-          //
-          // RegisterAssetTxArgs memory txArgs = RegisterAssetTxArgs({
-          //     assetHash: Utils.addressToBytes(assetHash),
-          //     nativeAssetHash: nativeAssetHash
-          // });
-          //
-          // bytes memory txData = _serializeRegisterAssetTxArgs(txArgs);
-          //
-          // IEthCrossChainManager eccm = _getEccm();
-          // require(eccm.crossChain(nativeChainId, nativeLockProxy, "registerAsset", txData), "EthCrossChainManager crossChain executed error!");
-          // balances[key] = delegatedSupply;
-          //
-          // emit DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+
+          var inputArgs = SerializeRegisterAssetArgs(assetHash, nativeAssetHash);
+
+            // construct params for CCMC
+            var param = new object[] { nativeChainId, nativeLockProxy, "registerAsset", inputArgs };
+            // dynamic call CCMC
+            var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
+            success = (bool)ccmc("CrossChain", param);
+            if (!success)
+            {
+                Runtime.Notify("Failed to call CCMC.");
+                return false;
+            }
+
+            DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+
+            return true;
         }
 
         // used to lock asset into proxy contract
@@ -328,6 +333,14 @@ namespace Nep5Proxy
             buffer = WriteVarBytes(assetHash, buffer);
             buffer = WriteVarBytes(address, buffer);
             buffer = WriteUint255(amount, buffer);
+            return buffer;
+        }
+
+        private static byte[] SerializeRegisterAssetArgs(byte[] assetHash, byte[] nativeAssetHash)
+        {
+            var buffer = new byte[] { };
+            buffer = WriteVarBytes(assetHash, buffer);
+            buffer = WriteVarBytes(nativeAssetHash, buffer);
             return buffer;
         }
 

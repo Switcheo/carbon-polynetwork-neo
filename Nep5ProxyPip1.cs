@@ -38,6 +38,8 @@ namespace Nep5Proxy
                     return GetAssetBalance((byte[])args[0]);
                 if (method == "delegateAsset")
                     return DelegateAsset((BigInteger)args[0], (byte[])args[1], (byte[])args[2], (BigInteger)args[3], callscript);
+                if (method == "registerAsset")
+                    return RegisterAsset((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
                 if (method == "lock")
                     return Lock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], (byte[])args[3], (BigInteger)args[4]);
                 if (method == "unlock")
@@ -78,7 +80,7 @@ namespace Nep5Proxy
           byte[] key = GetRegistryKey(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
 
           StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-          if (registry.Get(key) == 0x01)
+          if (registry.Get(key).length != 0)
           {
             Runtime.Notify("This asset has already been registered");
             return false;
@@ -102,20 +104,51 @@ namespace Nep5Proxy
 
           var inputArgs = SerializeRegisterAssetArgs(assetHash, nativeAssetHash);
 
-            // construct params for CCMC
-            var param = new object[] { nativeChainId, nativeLockProxy, "registerAsset", inputArgs };
-            // dynamic call CCMC
-            var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
-            success = (bool)ccmc("CrossChain", param);
-            if (!success)
-            {
-                Runtime.Notify("Failed to call CCMC.");
-                return false;
-            }
+          // construct params for CCMC
+          var param = new object[] { nativeChainId, nativeLockProxy, "registerAsset", inputArgs };
+          // dynamic call CCMC
+          var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
+          success = (bool)ccmc("CrossChain", param);
+          if (!success)
+          {
+            Runtime.Notify("Failed to call CCMC.");
+            return false;
+          }
 
-            DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+          DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
 
-            return true;
+          return true;
+        }
+
+        // called by the CCM to register assets from a connected chain
+        private static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
+        {
+          //only allowed to be called by CCMC
+          if (caller.AsBigInteger() != CCMCScriptHash.AsBigInteger())
+          {
+            Runtime.Notify("Only allowed to be called by CCMC");
+            Runtime.Notify(caller);
+            Runtime.Notify(CCMCScriptHash);
+            return false;
+          }
+
+          object[] results = DeserializeRegisterAssetArgs(inputBytes);
+          var assetHash = (byte[])results[0];
+          var nativeAssetHash = (byte[])results[1];
+
+          byte[] key = GetRegistryKey(nativeAssetHash, fromChainId, fromProxyContract, assetHash);
+
+          StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
+          if (registry.Get(key).length != 0)
+          {
+            Runtime.Notify("This asset has already been registered");
+            return false;
+          }
+
+          // mark asset in registry
+          registry.Put(key, 0x01);
+
+          return true;
         }
 
         // used to lock asset into proxy contract
@@ -257,21 +290,6 @@ namespace Nep5Proxy
           return Hash256(assetHash.Concat(nativeChainId.AsByteArray()).Concat(nativeLockProxy).Concat(nativeAssetHash))
         }
 
-        private static object[] DeserializeArgs(byte[] buffer)
-        {
-            var offset = 0;
-            var res = ReadVarBytes(buffer, offset);
-            var assetAddress = res[0];
-
-            res = ReadVarBytes(buffer, (int)res[1]);
-            var toAddress = res[0];
-
-            res = ReadUint255(buffer, (int)res[1]);
-            var amount = res[0];
-
-            return new object[] { assetAddress, toAddress, amount };
-        }
-
         private static object[] ReadUint255(byte[] buffer, int offset)
         {
             if (offset + 32 > buffer.Length)
@@ -336,12 +354,39 @@ namespace Nep5Proxy
             return buffer;
         }
 
+        private static object[] DeserializeArgs(byte[] buffer)
+        {
+            var offset = 0;
+            var res = ReadVarBytes(buffer, offset);
+            var assetAddress = res[0];
+
+            res = ReadVarBytes(buffer, (int)res[1]);
+            var toAddress = res[0];
+
+            res = ReadUint255(buffer, (int)res[1]);
+            var amount = res[0];
+
+            return new object[] { assetAddress, toAddress, amount };
+        }
+
         private static byte[] SerializeRegisterAssetArgs(byte[] assetHash, byte[] nativeAssetHash)
         {
             var buffer = new byte[] { };
             buffer = WriteVarBytes(assetHash, buffer);
             buffer = WriteVarBytes(nativeAssetHash, buffer);
             return buffer;
+        }
+
+        private static object[] DeserializeRegisterAssetArgs(byte[] buffer)
+        {
+            var offset = 0;
+            var res = ReadVarBytes(buffer, offset);
+            var assetHash = res[0];
+
+            res = ReadVarBytes(buffer, (int)res[1]);
+            var nativeAssetHash = res[0];
+
+            return new object[] { assetHash, nativeAssetHash };
         }
 
         private static byte[] WriteUint255(BigInteger value, byte[] source)

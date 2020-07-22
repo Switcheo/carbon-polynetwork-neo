@@ -21,8 +21,11 @@ async function run() {
   // const res = await Neon.rpc.Query.getUnspents('Acrazuc9WEQohbATTWtwYeYz4rcQE4vebM').execute("http://47.89.240.111:11333")
   // console.log('res', res.result)
 
-  const res = await Neon.rpc.Query.getBlock(1).execute("https://47.89.240.111:13332");
-  console.log('res', res)
+  // const res = await Neon.rpc.Query.getBlock(1).execute("http://47.89.240.111:12332");
+  // console.log('res', res)
+
+  const res = await Neon.rpc.Query.getUnspents('Acrazuc9WEQohbATTWtwYeYz4rcQE4vebM').execute("http://47.89.240.111:12332")
+  console.log('res', res.result)
 }
 
 run()

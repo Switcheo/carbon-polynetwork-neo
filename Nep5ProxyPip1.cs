@@ -13,7 +13,6 @@ namespace Nep5Proxy
     {
         // Constants
         private static readonly byte[] CCMCScriptHash = "".HexToBytes(); // little endian
-        private static readonly byte[] Operator = "".ToScriptHash(); // Operator address
 
         // Dynamic Call
         private delegate object DynCall(string method, object[] args); // dynamic call
@@ -22,9 +21,6 @@ namespace Nep5Proxy
         public static event Action<byte[], BigInteger, byte[], byte[]> DelegateAssetEvent;
         public static event Action<byte[], byte[], BigInteger, byte[], byte[], BigInteger, byte[]> LockEvent;
         public static event Action<byte[], byte[], BigInteger> UnlockEvent;
-
-        // Storage prefix
-        private static readonly byte[] FromAssetListPrefix = new byte[] { 0x01, 0x01 }; // "FromAssetList";
 
         public static object Main(string method, object[] args)
         {
@@ -80,8 +76,7 @@ namespace Nep5Proxy
 
             byte[] key = GetRegistryKey(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
 
-            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-            if (registry.Get(key).Length != 0)
+            if (AssetIsRegistered(key))
             {
                 Runtime.Notify("This asset has already been registered");
                 return false;
@@ -101,7 +96,7 @@ namespace Nep5Proxy
             }
 
             // mark asset in registry
-            registry.Put(key, 0x01);
+            MarkAssetAsRegistered(key);
 
             var inputArgs = SerializeRegisterAssetArgs(assetHash, nativeAssetHash);
 
@@ -143,15 +138,13 @@ namespace Nep5Proxy
 
             byte[] key = GetRegistryKey(nativeAssetHash, fromChainId, fromProxyContract, assetHash);
 
-            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-            if (registry.Get(key).Length != 0)
+            if (AssetIsRegistered(key))
             {
                 Runtime.Notify("This asset has already been registered");
                 return false;
             }
 
-            // mark asset in registry
-            registry.Put(key, 0x01);
+            MarkAssetAsRegistered(key);
 
             return true;
         }
@@ -215,6 +208,14 @@ namespace Nep5Proxy
                 }
             }
 
+            byte[] key = GetRegistryKey(fromAssetHash, toChainId, targetProxyHash, toAssetHash);
+
+            if (!AssetIsRegistered(key))
+            {
+                Runtime.Notify("This asset has not yet been registered");
+                return false;
+            }
+
             // transfer asset from fromAddress to proxy contract address, use dynamic call to call nep5 token's contract "transfer"
             byte[] currentHash = ExecutionEngine.ExecutingScriptHash; // this proxy contract hash
             var nep5Contract = (DynCall)fromAssetHash.ToDelegate();
@@ -222,14 +223,6 @@ namespace Nep5Proxy
             if (!success)
             {
                 Runtime.Notify("Failed to transfer NEP5 token to proxy contract.");
-                return false;
-            }
-
-            byte[] key = GetRegistryKey(fromAssetHash, toChainId, targetProxyHash, toAssetHash);
-            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-            if (registry.Get(key).Length == 0)
-            {
-                Runtime.Notify("This asset has not yet been registered");
                 return false;
             }
 
@@ -327,12 +320,12 @@ namespace Nep5Proxy
             }
 
             byte[] key = GetRegistryKey(toAssetHash, fromChainId, fromProxyContract, fromAssetHash);
-            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
-            if (registry.Get(key).Length == 0)
+            if (!AssetIsRegistered(key))
             {
                 Runtime.Notify("This asset has not yet been registered");
                 return false;
             }
+
             bool success = DecreaseBalance(key, amount);
             if (!success)
             {
@@ -365,6 +358,18 @@ namespace Nep5Proxy
             UnlockEvent(toAssetHash, toAddress, amount);
 
             return true;
+        }
+
+        private static bool AssetIsRegistered(byte[] key)
+        {
+            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
+            return registry.Get(key).Length != 0;
+        }
+
+        private static void MarkAssetAsRegistered(byte[] key)
+        {
+            StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
+            registry.Put(key, 0x01);
         }
 
         private static byte[] GetRegistryKey(byte[] assetHash, BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash)

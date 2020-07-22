@@ -1,0 +1,27 @@
+{
+  "ProtocolConfiguration": {
+    "Magic": 200323,
+    "AddressVersion": 23,
+    "SecondsPerBlock": 5,
+    "LowPriorityThreshold": 0.001,
+    "StateRootEnableIndex": 160001,
+    "StandbyValidators": [
+	    "030f59a5482a4e42a2e5a848608dac4e84a698e567e2860e0ca5f23fc9e818d37c",
+	    "03d55bfbcd493d06ab49c09cde0cea5d9ba890d81331a2fcd6f68d329932d0398f",
+	    "032e78261370d4d62cf4c13584ca90f46c5565117b5b97544312f2e7b7c36b9eba",
+	    "026e271722c21c482f0ac74dd932e61cdc2a2dd889633a2c5d8ecef43f2769f51e"
+    ],
+    "SeedList": [
+      "47.89.240.111:11333",
+      "47.89.240.111:12333",
+      "47.89.240.111:13333",
+      "47.89.240.111:14333"
+    ],
+    "SystemFee": {
+      "EnrollmentTransaction": 1000,
+      "IssueTransaction": 500,
+      "PublishTransaction": 500,
+      "RegisterTransaction": 10000
+    }
+  }
+}

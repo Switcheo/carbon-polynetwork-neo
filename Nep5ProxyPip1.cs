@@ -11,7 +11,8 @@ namespace Nep5Proxy
 {
     public class Nep5ProxyPip1 : SmartContract
     {
-        // Constants
+      // Constants
+        private static readonly byte Version = 0x02;
         private static readonly byte[] CCMCScriptHash = "de3ba846755178778c38a149d0fe0812d540c127".HexToBytes(); // little endian
 
         // Dynamic Call
@@ -28,6 +29,8 @@ namespace Nep5Proxy
             {
                 var callscript = ExecutionEngine.CallingScriptHash;
 
+                if (method == "getVersion")
+                    return GetVersion();
                 if (method == "getAssetBalance")
                     return GetAssetBalance((byte[])args[0]);
                 if (method == "delegateAsset")
@@ -38,9 +41,18 @@ namespace Nep5Proxy
                     return Lock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], (byte[])args[3], (byte[])args[4], (byte[])args[5], (BigInteger)args[6], (bool)args[7], (BigInteger)args[8], (byte[])args[9]);
                 if (method == "unlock")
                     return Unlock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
+                if (method == "unlock")
+                    return Unlock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
             }
             return false;
         }
+
+        [DisplayName("getVersion")]
+        public static byte GetVersion()
+        {
+          return Version;
+        }
+
 
         [DisplayName("getAssetBalance")]
         public static BigInteger GetAssetBalance(byte[] assetHash)

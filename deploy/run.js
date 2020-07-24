@@ -1,7 +1,7 @@
 const { default: Neon, tx, wallet, rpc, u, CONST } = require("@cityofzion/neon-js");
 const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
-// const proxyavm = require('./avmexample.json')
+const tokenavm = require('./swthtoken.json')
 
 // neo devnet ccmc: de3ba846755178778c38a149d0fe0812d540c127
 // https://github.com/polynetwork/docs/blob/master/config/README_DevNet.md
@@ -13,13 +13,19 @@ const proxyavm = require('./nep5proxypip1.json')
 // 6ef15743241f785cfcb1a2e7b8b1aab7704dbad0d79fd26366be3a9280b5e40c
 // dce6244b1f093e63249ca6a634f4135ab6999cb49ec6f2099f4c70d6f70bc04d
 // 5e170cec508b34aa00ced3f3e899ed3444fe2692a0eb9bd91d7c3684d69d0bdc
+// d825dea475f2d80e53c4c6d121d9135a49dbac4150850641a2c960dbffa6d16f
+// fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5
 
 // deploy txns:
-// d41836a79732c3077a175aabe4dc28ae823eedc51ed7f01f7887c65bb29c477d
+// lockproxy v2: d41836a79732c3077a175aabe4dc28ae823eedc51ed7f01f7887c65bb29c477d
+// swth v1: ca8da41a697cd5bc646b2bfc67d6c10e4d3a2620f9cc996b2d1cedecc1c9fdc0
+// swth v2: 5c0a483cc2a331ec9eb280b819d5584beb95f7a163fd667f344bacc1e1c8fbd3
 
 // contract script hashes:
-// v1: 8a7297e50d0d952e67f798719ed31b4528cc6ae3
-// v2: 0e2d9fd9f03f00dbdf85fa34e760ca4333d46312
+// lockproxy v1: 8a7297e50d0d952e67f798719ed31b4528cc6ae3
+// lockproxy v2: 0e2d9fd9f03f00dbdf85fa34e760ca4333d46312
+// swth v1: a37f9d94d45138e435f6dfe0bb5a04422b1e7f0e
+// swth v2: c9937a56c882087a204f0ab33a25fd7a5290ed27
 
 const net = 'NeoDevNet'
 const url = 'http://47.89.240.111:12332'
@@ -151,7 +157,7 @@ async function run() {
   console.log('mainAccount', mainAccount.address)
   const subAccount = Neon.create.account(process.env.subControlKey)
   console.log('subAccount', subAccount.address)
-  const hash = '5e170cec508b34aa00ced3f3e899ed3444fe2692a0eb9bd91d7c3684d69d0bdc'
+  const hash = 'fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5'
   // await getUnspents(subAccount.address)
   // await getRawTransaction(hash)
   // await transfer({
@@ -160,15 +166,22 @@ async function run() {
   //    prevHash: hash,
   //    prevIndex: 0,
   //    amount: '1501',
-  //    refundAmount: '84997'
+  //    refundAmount: '81995'
   // })
-  await deploy({
-    name: 'Nep5ProxyPip1',
-    script: proxyavm.script,
-    account: subAccount,
-    prevHash: hash,
-    prevIndex: 1
-  })
+  // await deploy({
+  //   name: 'Nep5ProxyPip1',
+  //   script: proxyavm.script,
+  //   account: subAccount,
+  //   prevHash: hash,
+  //   prevIndex: 1
+  // })
+  // await deploy({
+  //   name: 'SWTH Token',
+  //   script: tokenavm.script,
+  //   account: subAccount,
+  //   prevHash: hash,
+  //   prevIndex: 1
+  // })
 }
 
 run()

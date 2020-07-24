@@ -1,4 +1,4 @@
-const { default: Neon, tx, wallet, rpc, u, CONST } = require("@cityofzion/neon-js");
+const { default: Neon, tx, wallet, rpc, u, nep5, CONST } = require("@cityofzion/neon-js");
 const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
 const tokenavm = require('./swthtoken.json')
@@ -27,6 +27,9 @@ const tokenavm = require('./swthtoken.json')
 // swth v1: a37f9d94d45138e435f6dfe0bb5a04422b1e7f0e
 // swth v2: c9937a56c882087a204f0ab33a25fd7a5290ed27
 
+// invocation txns:
+// swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
+
 const net = 'NeoDevNet'
 const url = 'http://47.89.240.111:12332'
 
@@ -39,7 +42,7 @@ function addNetwork() {
   Neon.add.network(network)
 }
 
-async function getBlock(address) {
+async function getBlock() {
   const res = await rpc.Query.getBlock(1).execute(url)
   console.log('res', res.result)
 }
@@ -141,6 +144,47 @@ async function transfer({ fromAccount, toAccount, prevHash, prevIndex, amount, r
         .catch(err => { console.log(err) })
 }
 
+async function invoke(account, scriptHash, operation, args) {
+  const props = {
+    scriptHash: scriptHash,
+    operation: operation,
+    args: args
+  }
+  const script = Neon.create.script(props)
+
+  // create raw invocation transaction
+  let rawTransaction = new tx.InvocationTransaction({
+    script: script,
+    gas: 0
+  })
+
+  // Build input objects and output objects.
+  rawTransaction.addAttribute(
+    tx.TxAttrUsage.Script,
+    u.reverseHex(wallet.getScriptHashFromAddress(account.address))
+  );
+
+  // Sign transaction with sender's private key
+  const signature = wallet.sign(
+    rawTransaction.serialize(false),
+    account.privateKey
+  )
+
+  // Add witness
+  rawTransaction.addWitness(
+    tx.Witness.fromSignature(signature, account.publicKey)
+  )
+
+  console.log('rawTransaction.hash', rawTransaction.hash)
+
+  // Send raw transaction
+  const client = new rpc.RPCClient(url)
+  client.sendRawTransaction(rawTransaction)
+        .then(res => { console.log(res) })
+        .catch(err => { console.log(err) })
+
+}
+
 async function getRawTransaction(hash) {
   if (hash.startsWith('0x')) {
     hash = hash.slice(2)
@@ -152,12 +196,39 @@ async function getRawTransaction(hash) {
   console.log('res', res)
 }
 
+async function getNep5Balance() {
+
+}
+
 async function run() {
+  const tokenScriptHash = 'c9937a56c882087a204f0ab33a25fd7a5290ed27'
   const mainAccount = Neon.create.account(process.env.mainControlKey)
   console.log('mainAccount', mainAccount.address)
   const subAccount = Neon.create.account(process.env.subControlKey)
   console.log('subAccount', subAccount.address)
-  const hash = 'fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5'
+
+  // Lock(
+  //   byte[] fromAssetHash,
+  //   byte[] fromAddress,
+  //   BigInteger toChainId,
+  //   byte[] targetProxyHash,
+  //   byte[] toAssetHash,
+  //   byte[] toAddress,
+  //   BigInteger amount,
+  //   bool deductFeeInLock,
+  //   BigInteger feeAmount, byte[] feeAddress
+  // )
+
+  // await invoke(subAccount, tokenScriptHash, 'deploy', [])
+  // const hash = 'fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5'
+  // await getBlock()
+
+  // const balance = await nep5.getTokenBalance(url, tokenScriptHash, subAccount.address)
+  // console.log('balance', balance.toString())
+
+  // const balance = await nep5.getTokenBalance('https://seed1.switcheo.network:10331', 'ab38352559b8b203bde5fddfa0b07d8b2525e132', 'ALQmo14U6TVgPcEJAJjhKjsj4osbtswdMq')
+  // console.log('balance', balance.toString())
+
   // await getUnspents(subAccount.address)
   // await getRawTransaction(hash)
   // await transfer({

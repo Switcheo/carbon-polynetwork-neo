@@ -3,6 +3,8 @@ const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
 const tokenavm = require('./swthtoken.json')
 
+const SWTH_CHAIN_ID = 177
+
 // neo devnet ccmc: de3ba846755178778c38a149d0fe0812d540c127
 // https://github.com/polynetwork/docs/blob/master/config/README_DevNet.md
 
@@ -16,7 +18,6 @@ const tokenavm = require('./swthtoken.json')
 // d825dea475f2d80e53c4c6d121d9135a49dbac4150850641a2c960dbffa6d16f
 // fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5
 // 284b9f224c13b012d0b830ef6ce1c7f6632a45797dd4dc011d51580051515eba
-
 
 // deploy txns:
 // lockproxy v2: d41836a79732c3077a175aabe4dc28ae823eedc51ed7f01f7887c65bb29c477d
@@ -148,45 +149,27 @@ async function transfer({ fromAccount, toAccount, prevHash, prevIndex, amount, r
         .catch(err => { console.log(err) })
 }
 
-async function invoke(account, scriptHash, operation, args) {
-  const props = {
-    scriptHash: scriptHash,
-    operation: operation,
-    args: args
-  }
-  const script = Neon.create.script(props)
+async function invoke({ account, scriptHash, operation, args }) {
+  console.log('args', args)
+  return
+  const sb = Neon.create.scriptBuilder()
+  // Your contract script hash, function name and parameters
+  sb.emitAppCall(scriptHash, operation, args);
 
-  // create raw invocation transaction
-  let rawTransaction = new tx.InvocationTransaction({
-    script: script,
-    gas: 0
+  // Returns a hexstring
+  const script = sb.str
+
+  const apiProvider = new api.neoCli.instance(url)
+  // Neon API
+  const res = await Neon.doInvoke({
+    api: apiProvider,
+    url: url,
+    account,
+    script,
+    gas: 0,
+    fees: 0
   })
-
-  // Build input objects and output objects.
-  rawTransaction.addAttribute(
-    tx.TxAttrUsage.Script,
-    u.reverseHex(wallet.getScriptHashFromAddress(account.address))
-  );
-
-  // Sign transaction with sender's private key
-  const signature = wallet.sign(
-    rawTransaction.serialize(false),
-    account.privateKey
-  )
-
-  // Add witness
-  rawTransaction.addWitness(
-    tx.Witness.fromSignature(signature, account.publicKey)
-  )
-
-  console.log('rawTransaction.hash', rawTransaction.hash)
-
-  // Send raw transaction
-  const client = new rpc.RPCClient(url)
-  client.sendRawTransaction(rawTransaction)
-        .then(res => { console.log(res) })
-        .catch(err => { console.log(err) })
-
+  console.log('res', res)
 }
 
 async function getRawTransaction(hash) {
@@ -198,10 +181,6 @@ async function getRawTransaction(hash) {
   const verbose = 1
   const res = await client.getRawTransaction(hash, verbose)
   console.log('res', res)
-}
-
-async function getNep5Balance() {
-
 }
 
 async function sendTransaction({ account, receiver, gas }) {
@@ -232,20 +211,25 @@ async function run() {
   const subAccount = Neon.create.account(process.env.subControlKey)
   console.log('subAccount', subAccount.address)
 
-  // Lock(
-  //   byte[] fromAssetHash,
-  //   byte[] fromAddress,
-  //   BigInteger toChainId,
-  //   byte[] targetProxyHash,
-  //   byte[] toAssetHash,
-  //   byte[] toAddress,
-  //   BigInteger amount,
-  //   bool deductFeeInLock,
-  //   BigInteger feeAmount, byte[] feeAddress
-  // )
+  invoke({
+    account: subAccount,
+    scriptHash: 'fa992729c38778afbf8dba51c5bc546611aba08a',
+    operation: 'lock',
+    args: [
+      'c9937a56c882087a204f0ab33a25fd7a5290ed27', // fromAssetHash: swth_v2
+      subAccount.scriptHash, // fromAddress
+      SWTH_CHAIN_ID, // toChainId
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
+      u.str2hexstring('swth'), // toAssetHash
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // toAddress
+      '777777777777', // amount
+      false, // deductFeeInLock
+      '77777777', // feeAmount
+      '989761fb0c0eb0c05605e849cae77d239f98ac7f' // feeAddress
+    ]
+  })
 
-  // await invoke(subAccount, tokenScriptHash, 'deploy', [])
-  const hash = '61e8e29e4794429a80558ca70781687d23f99bdc02aeb99613cc99e4e92cc0ad'
+  // const hash = '61e8e29e4794429a80558ca70781687d23f99bdc02aeb99613cc99e4e92cc0ad'
   // await getBlock()
 
   // const balance = await nep5.getTokenBalance(url, tokenScriptHash, subAccount.address)

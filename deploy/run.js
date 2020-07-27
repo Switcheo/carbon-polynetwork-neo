@@ -17,16 +17,19 @@ const tokenavm = require('./swthtoken.json')
 // fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5
 // 284b9f224c13b012d0b830ef6ce1c7f6632a45797dd4dc011d51580051515eba
 
+
 // deploy txns:
 // lockproxy v2: d41836a79732c3077a175aabe4dc28ae823eedc51ed7f01f7887c65bb29c477d
 // swth v1: ca8da41a697cd5bc646b2bfc67d6c10e4d3a2620f9cc996b2d1cedecc1c9fdc0
 // swth v2: 5c0a483cc2a331ec9eb280b819d5584beb95f7a163fd667f344bacc1e1c8fbd3
+// swth v2.1: b72e737ca2cfe273ca67dd8cbab38fcb1abea37f9ca76e0a529087da5832102b
 
 // contract script hashes:
 // lockproxy v1: 8a7297e50d0d952e67f798719ed31b4528cc6ae3
 // lockproxy v2: 0e2d9fd9f03f00dbdf85fa34e760ca4333d46312
 // swth v1: a37f9d94d45138e435f6dfe0bb5a04422b1e7f0e
 // swth v2: c9937a56c882087a204f0ab33a25fd7a5290ed27
+// lockproxy v2.1: fa992729c38778afbf8dba51c5bc546611aba08a
 
 // invocation txns:
 // swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
@@ -242,7 +245,7 @@ async function run() {
   // )
 
   // await invoke(subAccount, tokenScriptHash, 'deploy', [])
-  // const hash = 'fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5'
+  const hash = '61e8e29e4794429a80558ca70781687d23f99bdc02aeb99613cc99e4e92cc0ad'
   // await getBlock()
 
   // const balance = await nep5.getTokenBalance(url, tokenScriptHash, subAccount.address)
@@ -251,7 +254,7 @@ async function run() {
   // const balance = await nep5.getTokenBalance('https://seed1.switcheo.network:10331', 'ab38352559b8b203bde5fddfa0b07d8b2525e132', 'ALQmo14U6TVgPcEJAJjhKjsj4osbtswdMq')
   // console.log('balance', balance.toString())
 
-  await getUnspents(subAccount.address)
+  // await getUnspents(subAccount.address)
   // await getRawTransaction(hash)
   // await transfer({
   //    fromAccount: mainAccount,
@@ -259,7 +262,7 @@ async function run() {
   //    prevHash: hash,
   //    prevIndex: 0,
   //    amount: '1501',
-  //    refundAmount: '81995'
+  //    refundAmount: '80493'
   // })
   // await deploy({
   //   name: 'Nep5ProxyPip1',

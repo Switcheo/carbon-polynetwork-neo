@@ -1,4 +1,4 @@
-const { default: Neon, tx, wallet, rpc, u, nep5, CONST } = require("@cityofzion/neon-js");
+const { default: Neon, tx, wallet, rpc, u, nep5, api, CONST } = require("@cityofzion/neon-js");
 const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
 const tokenavm = require('./swthtoken.json')
@@ -15,6 +15,7 @@ const tokenavm = require('./swthtoken.json')
 // 5e170cec508b34aa00ced3f3e899ed3444fe2692a0eb9bd91d7c3684d69d0bdc
 // d825dea475f2d80e53c4c6d121d9135a49dbac4150850641a2c960dbffa6d16f
 // fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5
+// 284b9f224c13b012d0b830ef6ce1c7f6632a45797dd4dc011d51580051515eba
 
 // deploy txns:
 // lockproxy v2: d41836a79732c3077a175aabe4dc28ae823eedc51ed7f01f7887c65bb29c477d
@@ -200,6 +201,27 @@ async function getNep5Balance() {
 
 }
 
+async function sendTransaction({ account, receiver, gas }) {
+  const intent = api.makeIntent({ GAS: gas }, receiver)
+
+  // const network = new rpc.Network({
+  //   name: net,
+  //   protocol: protocol.ProtocolConfiguration
+  // })
+
+  const apiProvider = new api.neoCli.instance(url)
+
+  // const apiProvider = new api.neoscan.instance('TestNet')
+  // console.log('apiProvider', apiProvider)
+  // Neon API
+  const res = await Neon.sendAsset({
+    api: apiProvider,
+    account,
+    intents: intent
+  })
+  console.log('res', res)
+}
+
 async function run() {
   const tokenScriptHash = 'c9937a56c882087a204f0ab33a25fd7a5290ed27'
   const mainAccount = Neon.create.account(process.env.mainControlKey)
@@ -229,7 +251,7 @@ async function run() {
   // const balance = await nep5.getTokenBalance('https://seed1.switcheo.network:10331', 'ab38352559b8b203bde5fddfa0b07d8b2525e132', 'ALQmo14U6TVgPcEJAJjhKjsj4osbtswdMq')
   // console.log('balance', balance.toString())
 
-  // await getUnspents(subAccount.address)
+  await getUnspents(subAccount.address)
   // await getRawTransaction(hash)
   // await transfer({
   //    fromAccount: mainAccount,
@@ -252,6 +274,12 @@ async function run() {
   //   account: subAccount,
   //   prevHash: hash,
   //   prevIndex: 1
+  // })
+
+  // sendTransaction({
+  //   account: mainAccount,
+  //   receiver: subAccount.address,
+  //   gas: 1
   // })
 }
 

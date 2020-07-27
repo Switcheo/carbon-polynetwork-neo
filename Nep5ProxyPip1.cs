@@ -43,8 +43,6 @@ namespace Nep5Proxy
                     return Lock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], (byte[])args[3], (byte[])args[4], (byte[])args[5], (BigInteger)args[6], (bool)args[7], (BigInteger)args[8], (byte[])args[9]);
                 if (method == "unlock")
                     return Unlock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
-                if (method == "unlock")
-                    return Unlock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
             }
             return false;
         }

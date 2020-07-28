@@ -3,7 +3,7 @@ const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
 const tokenavm = require('./swthtoken.json')
 
-const SWTH_CHAIN_ID = 177
+const SWTH_CHAIN_ID = 178
 
 // neo devnet ccmc: de3ba846755178778c38a149d0fe0812d540c127
 // https://github.com/polynetwork/docs/blob/master/config/README_DevNet.md
@@ -41,8 +41,17 @@ const SWTH_CHAIN_ID = 177
 
 // relayer txns:
 // register asset: f7b340660e018ee840036ae2022ae5d98196e30005203e8ccc85326e8fee8671 => success
+// unknown txn: 845055931d770f7d15c6b056e67b1709893486884ad9541280f0333d8f670269 => success
+// register asset: fae354613e6f3005801c1a517e9f59e2ee91df6c69bd2b74fc10f25df245ac60 => success
+//    RegisterAssetEvent(
+//      nativeAssetHash, 27ed90527afd253ab30a4f207a0882c8567a93c9
+//      fromChainId, 178
+//      fromProxyContract, db8afcccebc026c6cae1d541b25f80a83b065c8a
+//      assetHash 7377746833
+//    )
 //
 // lock: cd0d4c165e707e059563a9ca587f2c93e571c70488429bc96a523bde1c00c5ac => error: "This asset has not yet been registered"
+// lock: b8b7985cd013a960a84d991f2a5639ec4f84bfbd1ba9be6b180eb1ca1f53fb56 => error: "This asset has not yet been registered"
 
 const net = 'NeoDevNet'
 const url = 'http://47.89.240.111:12332'
@@ -158,6 +167,30 @@ async function transfer({ fromAccount, toAccount, prevHash, prevIndex, amount, r
         .catch(err => { console.log(err) })
 }
 
+Lock(
+  byte[] fromAssetHash, '27ed90527afd253ab30a4f207a0882c8567a93c9'
+  byte[] fromAddress, '243486261a8a64639b1d0bae0c31da84a641960c'
+  BigInteger toChainId, 178
+  byte[] targetProxyHash, 'db8afcccebc026c6cae1d541b25f80a83b065c8a'
+  byte[] toAssetHash, '7377746833'
+  byte[] toAddress, 'db8afcccebc026c6cae1d541b25f80a83b065c8a'
+  BigInteger amount, '777777777777'
+  bool deductFeeInLock, false
+  BigInteger feeAmount, '77777777'
+  byte[] feeAddress '989761fb0c0eb0c05605e849cae77d239f98ac7f'
+)
+
+args [
+  178,
+  'db8afcccebc026c6cae1d541b25f80a83b065c8a',
+  '7377746833',
+  'db8afcccebc026c6cae1d541b25f80a83b065c8a',
+  '777777777777',
+  false,
+  '77777777',
+  '989761fb0c0eb0c05605e849cae77d239f98ac7f'
+]
+
 async function invoke({ account, scriptHash, operation, args }) {
   console.log('args', args)
   // return
@@ -220,23 +253,23 @@ async function run() {
   const subAccount = Neon.create.account(process.env.subControlKey)
   console.log('subAccount', subAccount.address)
 
-  // invoke({
-  //   account: subAccount,
-  //   scriptHash: 'fa992729c38778afbf8dba51c5bc546611aba08a',
-  //   operation: 'lock',
-  //   args: [
-  //     '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
-  //     u.reverseHex(subAccount.scriptHash), // fromAddress
-  //     SWTH_CHAIN_ID, // toChainId
-  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-  //     u.str2hexstring('swth2'), // toAssetHash
-  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // toAddress
-  //     '777777777777', // amount
-  //     false, // deductFeeInLock
-  //     '77777777', // feeAmount
-  //     '989761fb0c0eb0c05605e849cae77d239f98ac7f' // feeAddress
-  //   ]
-  // })
+  invoke({
+    account: subAccount,
+    scriptHash: 'fa992729c38778afbf8dba51c5bc546611aba08a',
+    operation: 'lock',
+    args: [
+      '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
+      u.reverseHex(subAccount.scriptHash), // fromAddress
+      SWTH_CHAIN_ID, // toChainId
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
+      u.str2hexstring('swth3'), // toAssetHash
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // toAddress
+      '777777777777', // amount
+      false, // deductFeeInLock
+      '77777777', // feeAmount
+      '989761fb0c0eb0c05605e849cae77d239f98ac7f' // feeAddress
+    ]
+  })
 
   // const hash = '63d0f30f978607f1ca8f08d2c05196d17e786f3849d27b6c7ff8ef96d2f653cc'
   // await getBlock()

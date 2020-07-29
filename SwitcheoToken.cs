@@ -17,8 +17,8 @@ namespace Neo.SmartContract
         public static event Action<byte[], BigInteger> Refund;
 
         // Token Settings
-        public static string Name() => "Switcheo";
-        public static string Symbol() => "SWTH";
+        public static string Name() => "Switcheo6";
+        public static string Symbol() => "SWTH6";
         public static byte Decimals() => 8;
         private const ulong factor = 100000000; // decided by Decimals()
         public static readonly byte[] Owner = "AK5JtqW3NbdmuxNDjHPo7KuShjjXKz6u6U".ToScriptHash();

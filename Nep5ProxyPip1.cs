@@ -268,7 +268,7 @@ namespace Nep5Proxy
             }
 
             // construct args for proxy contract on target chain
-            var inputArgs = SerializeArgs(fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress);
+            var inputArgs = SerializeArgs(fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress);
             // construct params for CCMC
             var param = new object[] { toChainId, targetProxyHash, "unlock", inputArgs };
             // dynamic call CCMC

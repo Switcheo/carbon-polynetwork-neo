@@ -496,7 +496,7 @@ namespace Nep5Proxy
             return new object[] { buffer.Range(offset, count), offset + count };
         }
 
-        private static byte[] SerializeArgs(byte[] fromAssetHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, BigInteger feeAmount, byte[] feeAddress)
+        private static byte[] SerializeArgs(byte[] fromAssetHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, BigInteger feeAmount, byte[] feeAddress, byte[] fromAddress)
         {
             var buffer = new byte[] { };
             buffer = WriteVarBytes(fromAssetHash, buffer);
@@ -505,6 +505,7 @@ namespace Nep5Proxy
             buffer = WriteUint255(amount, buffer);
             buffer = WriteUint255(feeAmount, buffer);
             buffer = WriteVarBytes(feeAddress, buffer);
+            buffer = WriteVarBytes(fromAddress, buffer);
             return buffer;
         }
 

@@ -238,23 +238,23 @@ async function run() {
   //   operation: 'deploy',
   //   args: []
   // })
-  // invoke({
-  //   account: subAccount,
-  //   scriptHash: '5faf564a13601fc39b7e1a3bbc862c450538fa89',
-  //   operation: 'lock',
-  //   args: [
-  //     '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
-  //     u.reverseHex(subAccount.scriptHash), // fromAddress
-  //     180, // toChainId
-  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-  //     u.str2hexstring('swth'), // toAssetHash
-  //     '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
-  //     1000, // amount
-  //     false, // deductFeeInLock
-  //     100, // feeAmount
-  //     'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
-  //   ]
-  // })
+  invoke({
+    account: subAccount,
+    scriptHash: '5faf564a13601fc39b7e1a3bbc862c450538fa89',
+    operation: 'lock',
+    args: [
+      '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
+      u.reverseHex(subAccount.scriptHash), // fromAddress
+      180, // toChainId
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
+      u.str2hexstring('swth'), // toAssetHash
+      '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
+      1000, // amount
+      false, // deductFeeInLock
+      100, // feeAmount
+      'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
+    ]
+  })
 
   // const hash = 'f96c5dc3e5c7774875d0e6d78f90b7eabc6ef8582ebdac0a989f9ef4b084195d'
   // await getBlock()

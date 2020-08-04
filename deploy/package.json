@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@cityofzion/neon-js": "^4.8.0"
+    "@cityofzion/neon-js": "^4.8.0",
+    "bignumber.js": "^9.0.0"
   }
 }

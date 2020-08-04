@@ -1,4 +1,6 @@
 const { default: Neon, tx, wallet, rpc, u, nep5, api, CONST } = require("@cityofzion/neon-js");
+const BigNumber = require('bignumber.js');
+
 const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
 const tokenavm = require('./swthtoken.json')
@@ -30,6 +32,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2: d41836a79732c3077a175aabe4dc28ae823eedc51ed7f01f7887c65bb29c477d
 // lockproxy v2.3: 02698d307b3fe306023f35114d87bbbeb1544fce7dd83226d5628e598e29cba1
 // lockproxy v2.4: 640cd035950dccf12bda53b41838447024477d432ef0e25bce13d491f418d88a
+// lockproxy v2.5: 168972920fbf22190f6e01f112e90dfcc1fc83ed1df52cb4bf9d0b10b3a3c031
 
 // contract script hashes:
 // lockproxy v1: 8a7297e50d0d952e67f798719ed31b4528cc6ae3
@@ -41,6 +44,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2.2: 97b13d8f09d8ee8e3203359e6204156004de3499 => 9934de04601504629e3503328eeed8098f3db197
 // lockproxy v2.3: 1414b81e37a1b4248e0e5134155c71dd2e6a8cd9 => d98c6a2edd715c1534510e8e24b4a1371eb81414
 // lockproxy v2.4: 534f3f32a61b81b88b97b796d62c83aab0d8728e => 8e72d8b0aa832cd696b7978bb8811ba6323f4f53 => AUm5BQgmA4Kzx6gAJryCp38xcDuYh9X961
+// lockproxy v2.5: 5faf564a13601fc39b7e1a3bbc862c450538fa89 => 89fa3805452c86bc3b1a7e9bc31f60134a56af5f => AUMRyHfpzgWphxnptXwjbDBrkFcy6hQUeb
 
 // invocation txns:
 // swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
@@ -209,6 +213,9 @@ async function run() {
   const subAccount = Neon.create.account(process.env.subControlKey)
   console.log('subAccount', subAccount.address)
 
+  // const num = new BigNumber('1000')
+  // console.log('num', num.toString(16))
+
   // query({
   //   scriptHash: '1414b81e37a1b4248e0e5134155c71dd2e6a8cd9',
   //   operation: 'assetIsRegistered',
@@ -233,27 +240,27 @@ async function run() {
   // })
   // invoke({
   //   account: subAccount,
-  //   scriptHash: '534f3f32a61b81b88b97b796d62c83aab0d8728e',
+  //   scriptHash: '5faf564a13601fc39b7e1a3bbc862c450538fa89',
   //   operation: 'lock',
   //   args: [
   //     '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
   //     u.reverseHex(subAccount.scriptHash), // fromAddress
-  //     178, // toChainId
+  //     180, // toChainId
   //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-  //     u.str2hexstring('swth5'), // toAssetHash
-  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // toAddress
+  //     u.str2hexstring('swth'), // toAssetHash
+  //     '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
   //     1000, // amount
   //     false, // deductFeeInLock
   //     100, // feeAmount
-  //     '989761fb0c0eb0c05605e849cae77d239f98ac7f' // feeAddress
+  //     'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
   //   ]
   // })
 
   // const hash = 'f96c5dc3e5c7774875d0e6d78f90b7eabc6ef8582ebdac0a989f9ef4b084195d'
   // await getBlock()
 
-  const balance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', subAccount.address)
-  console.log('balance', balance.toString())
+  // const balance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', subAccount.address)
+  // console.log('balance', balance.toString())
 
   // const balance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AUm5BQgmA4Kzx6gAJryCp38xcDuYh9X961')
   // console.log('balance', balance.toString())
@@ -269,8 +276,6 @@ async function run() {
   //   name: 'Nep5ProxyPip1',
   //   script: proxyavm.script,
   //   account: subAccount,
-  //   prevHash: hash,
-  //   prevIndex: 1
   // })
   // await deploy({
   //   name: 'SWTH Token 6',

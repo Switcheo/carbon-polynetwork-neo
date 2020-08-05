@@ -48,6 +48,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2.5: 5faf564a13601fc39b7e1a3bbc862c450538fa89 => 89fa3805452c86bc3b1a7e9bc31f60134a56af5f => AUMRyHfpzgWphxnptXwjbDBrkFcy6hQUeb
 // lockproxy v2.6: 533fb0db7993b9f9d3acba4b798948ab2c354b0d => 0d4b352cab4889794bbaacd3f9b99379dbb03f53 => AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS
 // lockproxy v2.7: f4b0901562246e6d09cba791321dc56be4cc87a8 => a887cce46bc51d3291a7cb096d6e24621590b0f4
+// lockproxy v2.8: c29cf157a74f7e3d9b791756e768f60af3fe5fd0 => d05ffef30af668e75617799b3d7e4fa757f19cc2
 
 // invocation txns:
 // swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
@@ -122,7 +123,7 @@ async function deploy({ name, script, account }) {
     url: url, // RPC URL
     account: account, // Your Account
     script: sb.str, // The Smart Contract invocation script
-    gas: 1500, // Optional, system fee
+    gas: 1000, // Optional, system fee
     fees: 1 // Optional, network fee
   })
   console.log('res', res)
@@ -251,23 +252,23 @@ async function run() {
   //   operation: 'deploy',
   //   args: []
   // })
-  // invoke({
-  //   account: subAccount,
-  //   scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
-  //   operation: 'lock',
-  //   args: [
-  //     '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
-  //     u.reverseHex(subAccount.scriptHash), // fromAddress
-  //     181, // toChainId
-  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-  //     u.str2hexstring('swth2'), // toAssetHash
-  //     '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
-  //     (new BigNumber(1000)).toNumber(), // amount
-  //     false, // deductFeeInLock
-  //     (new BigNumber(2)).toNumber(), // feeAmount
-  //     'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
-  //   ]
-  // })
+  invoke({
+    account: subAccount,
+    scriptHash: 'c29cf157a74f7e3d9b791756e768f60af3fe5fd0',
+    operation: 'lock',
+    args: [
+      '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
+      u.reverseHex(subAccount.scriptHash), // fromAddress
+      181, // toChainId
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
+      u.str2hexstring('swth9'), // toAssetHash
+      '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
+      (new BigNumber(1000)).toNumber(), // amount
+      false, // deductFeeInLock
+      (new BigNumber(0)).toNumber(), // feeAmount
+      'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
+    ]
+  })
 
   // const num = new BigNumber(Number.MAX_SAFE_INTEGER)
   // const num2 = new BigNumber(Number.MAX_SAFE_INTEGER)
@@ -290,7 +291,7 @@ async function run() {
   // await transfer({
   //    fromAccount: mainAccount,
   //    toAccount: subAccount,
-  //    amount: 1501
+  //    amount: 1001
   // })
   // await deploy({
   //   name: 'Nep5ProxyPip1',

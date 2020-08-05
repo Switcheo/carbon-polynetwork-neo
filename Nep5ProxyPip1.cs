@@ -481,6 +481,7 @@ namespace Nep5Proxy
 
             StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
             BigInteger currentBalance = balances.Get(key).AsBigInteger();
+            BigInteger newBalance = currentBalance + amount;
             balances.Put(key, currentBalance);
 
             return true;

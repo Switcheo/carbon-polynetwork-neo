@@ -219,22 +219,31 @@ async function run() {
   // const num = new BigNumber('1000')
   // console.log('num', num.toString(16))
 
-  // query({
-  //   scriptHash: '1414b81e37a1b4248e0e5134155c71dd2e6a8cd9',
-  //   operation: 'assetIsRegistered',
-  //   args: ['901e4da39ecf91f5a513246db067c8485b1db6c8c155c84dc05a4fdb5dcf7683']
-  // })
-  // query({
-  //   scriptHash: '1414b81e37a1b4248e0e5134155c71dd2e6a8cd9',
-  //   operation: 'getRegistryKey',
-  //   args: [
-  //     '27ed90527afd253ab30a4f207a0882c8567a93c9',
-  //     178,
-  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a',
-  //     '7377746834',
-  //     '901e4da39ecf91f5a513246db067c8485b1db6c8c155c84dc05a4fdb5dcf7683'
-  //   ]
-  // })
+  query({
+    scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
+    operation: 'assetIsRegistered',
+    args: ['b2dfb5059d06e70010b355e13c730bfc03cd13473a338a369e6b4fcee3fbcc7b']
+  })
+  query({
+    scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
+    operation: 'getLockedBalance',
+    args: [
+      '27ed90527afd253ab30a4f207a0882c8567a93c9',
+      181,
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a',
+      u.str2hexstring('swth2')
+    ]
+  })
+  query({
+    scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
+    operation: 'getRegistryKey',
+    args: [
+      '27ed90527afd253ab30a4f207a0882c8567a93c9',
+      181,
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a',
+      u.str2hexstring('swth2')
+    ]
+  })
   // invoke({
   //   account: subAccount,
   //   scriptHash: '6992d8ba60540c7c5b464533543098a1bc04c040',
@@ -254,7 +263,7 @@ async function run() {
   //     '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
   //     (new BigNumber(1000)).toNumber(), // amount
   //     false, // deductFeeInLock
-  //     (new BigNumber(0)).toNumber(), // feeAmount
+  //     (new BigNumber(2)).toNumber(), // feeAmount
   //     'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
   //   ]
   // })
@@ -266,12 +275,14 @@ async function run() {
 
   // const hash = 'f96c5dc3e5c7774875d0e6d78f90b7eabc6ef8582ebdac0a989f9ef4b084195d'
   // await getBlock()
-
-  const accBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', subAccount.address)
-  console.log('accBalance', accBalance.toString())
-
-  const lpBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS')
-  console.log('lpBalance', lpBalance.toString())
+  // const mainAccBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', mainAccount.address)
+  // console.log('mainAccBalance', mainAccBalance.toString())
+  //
+  // const subAccBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', subAccount.address)
+  // console.log('subAccBalance', subAccBalance.toString())
+  //
+  // const lpBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS')
+  // console.log('lpBalance', lpBalance.toString())
 
   // await getUnspents(subAccount.address)
   // await getRawTransaction(hash)

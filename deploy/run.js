@@ -47,6 +47,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2.4: 534f3f32a61b81b88b97b796d62c83aab0d8728e => 8e72d8b0aa832cd696b7978bb8811ba6323f4f53 => AUm5BQgmA4Kzx6gAJryCp38xcDuYh9X961
 // lockproxy v2.5: 5faf564a13601fc39b7e1a3bbc862c450538fa89 => 89fa3805452c86bc3b1a7e9bc31f60134a56af5f => AUMRyHfpzgWphxnptXwjbDBrkFcy6hQUeb
 // lockproxy v2.6: 533fb0db7993b9f9d3acba4b798948ab2c354b0d => 0d4b352cab4889794bbaacd3f9b99379dbb03f53 => AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS
+// lockproxy v2.7: f4b0901562246e6d09cba791321dc56be4cc87a8 => a887cce46bc51d3291a7cb096d6e24621590b0f4
 
 // invocation txns:
 // swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
@@ -219,31 +220,31 @@ async function run() {
   // const num = new BigNumber('1000')
   // console.log('num', num.toString(16))
 
-  query({
-    scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
-    operation: 'assetIsRegistered',
-    args: ['b2dfb5059d06e70010b355e13c730bfc03cd13473a338a369e6b4fcee3fbcc7b']
-  })
-  query({
-    scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
-    operation: 'getLockedBalance',
-    args: [
-      '27ed90527afd253ab30a4f207a0882c8567a93c9',
-      181,
-      'db8afcccebc026c6cae1d541b25f80a83b065c8a',
-      u.str2hexstring('swth2')
-    ]
-  })
-  query({
-    scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
-    operation: 'getRegistryKey',
-    args: [
-      '27ed90527afd253ab30a4f207a0882c8567a93c9',
-      181,
-      'db8afcccebc026c6cae1d541b25f80a83b065c8a',
-      u.str2hexstring('swth2')
-    ]
-  })
+  // query({
+  //   scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
+  //   operation: 'assetIsRegistered',
+  //   args: ['b2dfb5059d06e70010b355e13c730bfc03cd13473a338a369e6b4fcee3fbcc7b']
+  // })
+  // query({
+  //   scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
+  //   operation: 'getLockedBalance',
+  //   args: [
+  //     '27ed90527afd253ab30a4f207a0882c8567a93c9',
+  //     181,
+  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a',
+  //     u.str2hexstring('swth2')
+  //   ]
+  // })
+  // query({
+  //   scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
+  //   operation: 'getRegistryKey',
+  //   args: [
+  //     '27ed90527afd253ab30a4f207a0882c8567a93c9',
+  //     181,
+  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a',
+  //     u.str2hexstring('swth2')
+  //   ]
+  // })
   // invoke({
   //   account: subAccount,
   //   scriptHash: '6992d8ba60540c7c5b464533543098a1bc04c040',

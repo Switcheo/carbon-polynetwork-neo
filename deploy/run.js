@@ -33,6 +33,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2.3: 02698d307b3fe306023f35114d87bbbeb1544fce7dd83226d5628e598e29cba1
 // lockproxy v2.4: 640cd035950dccf12bda53b41838447024477d432ef0e25bce13d491f418d88a
 // lockproxy v2.5: 168972920fbf22190f6e01f112e90dfcc1fc83ed1df52cb4bf9d0b10b3a3c031
+// lockproxy v2.6: 81cd6805250cd1cdfdd40a9c73327cd2b81cdd3c2b9b9d4d645526a4887e1569
 
 // contract script hashes:
 // lockproxy v1: 8a7297e50d0d952e67f798719ed31b4528cc6ae3
@@ -45,6 +46,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2.3: 1414b81e37a1b4248e0e5134155c71dd2e6a8cd9 => d98c6a2edd715c1534510e8e24b4a1371eb81414
 // lockproxy v2.4: 534f3f32a61b81b88b97b796d62c83aab0d8728e => 8e72d8b0aa832cd696b7978bb8811ba6323f4f53 => AUm5BQgmA4Kzx6gAJryCp38xcDuYh9X961
 // lockproxy v2.5: 5faf564a13601fc39b7e1a3bbc862c450538fa89 => 89fa3805452c86bc3b1a7e9bc31f60134a56af5f => AUMRyHfpzgWphxnptXwjbDBrkFcy6hQUeb
+// lockproxy v2.6: 533fb0db7993b9f9d3acba4b798948ab2c354b0d => 0d4b352cab4889794bbaacd3f9b99379dbb03f53 => AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS
 
 // invocation txns:
 // swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
@@ -68,6 +70,7 @@ const tokenavm = require('./swthtoken.json')
 // lock: 1da7cf5e23844f3d23476cb636a239283d2aa1c71f71acb3821a6c8fda7becce => error
 // lock: d9535e2e740177333c50b053f7e8bda56d1a7682b20d6bf82cfdb36c64976b90 => error
 // lock: ab272d221dd99c3eb6b0746d944ff47ca7f8b4b3356d35f67efa3914ef47c4d5
+// lock: b3bf4c8e0b8ac0dd4f7bfb82f99f7f052fff11d4ba8301a40b45c6fbda2d3580
 
 const net = 'NeoDevNet'
 const url = 'http://47.89.240.111:12332'
@@ -238,32 +241,37 @@ async function run() {
   //   operation: 'deploy',
   //   args: []
   // })
-  invoke({
-    account: subAccount,
-    scriptHash: '5faf564a13601fc39b7e1a3bbc862c450538fa89',
-    operation: 'lock',
-    args: [
-      '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
-      u.reverseHex(subAccount.scriptHash), // fromAddress
-      180, // toChainId
-      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-      u.str2hexstring('swth'), // toAssetHash
-      '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
-      1000, // amount
-      false, // deductFeeInLock
-      100, // feeAmount
-      'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
-    ]
-  })
+  // invoke({
+  //   account: subAccount,
+  //   scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',
+  //   operation: 'lock',
+  //   args: [
+  //     '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
+  //     u.reverseHex(subAccount.scriptHash), // fromAddress
+  //     181, // toChainId
+  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
+  //     u.str2hexstring('swth2'), // toAssetHash
+  //     '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
+  //     (new BigNumber(1000)).toNumber(), // amount
+  //     false, // deductFeeInLock
+  //     (new BigNumber(0)).toNumber(), // feeAmount
+  //     'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
+  //   ]
+  // })
+
+  // const num = new BigNumber(Number.MAX_SAFE_INTEGER)
+  // const num2 = new BigNumber(Number.MAX_SAFE_INTEGER)
+  // const num3 = num.plus(num2)
+  // console.log('num3', num.toString(), num3.toString(), num3.toNumber())
 
   // const hash = 'f96c5dc3e5c7774875d0e6d78f90b7eabc6ef8582ebdac0a989f9ef4b084195d'
   // await getBlock()
 
-  // const balance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', subAccount.address)
-  // console.log('balance', balance.toString())
+  const accBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', subAccount.address)
+  console.log('accBalance', accBalance.toString())
 
-  // const balance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AUm5BQgmA4Kzx6gAJryCp38xcDuYh9X961')
-  // console.log('balance', balance.toString())
+  const lpBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS')
+  console.log('lpBalance', lpBalance.toString())
 
   // await getUnspents(subAccount.address)
   // await getRawTransaction(hash)

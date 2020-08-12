@@ -313,8 +313,10 @@ namespace Nep5Proxy
                 }
             }
 
+            // get next nonce
+            var nonce = GetNextNonce();
             // construct args for proxy contract on target chain
-            var inputArgs = SerializeArgs(fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress);
+            var inputArgs = SerializeArgs(fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress, nonce);
             // construct params for CCMC
             var param = new object[] { toChainId, targetProxyHash, "unlock", inputArgs };
             // dynamic call CCMC
@@ -491,6 +493,14 @@ namespace Nep5Proxy
             return true;
         }
 
+        private static BigInteger GetNextNonce()
+        {
+            var nonce = Storage.Get("nonce").AsBigInteger();
+            var newNonce = nonce + 1;
+            Storage.Put("nonce", newNonce);
+            return newNonce;
+        }
+
         private static bool DecreaseBalance(byte[] key, BigInteger amount)
         {
             if (amount < 0)
@@ -565,7 +575,7 @@ namespace Nep5Proxy
             return new object[] { buffer.Range(offset, count), offset + count };
         }
 
-        private static byte[] SerializeArgs(byte[] fromAssetHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, BigInteger feeAmount, byte[] feeAddress, byte[] fromAddress)
+        private static byte[] SerializeArgs(byte[] fromAssetHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, BigInteger feeAmount, byte[] feeAddress, byte[] fromAddress, BigInteger nonce)
         {
             var buffer = new byte[] { };
             buffer = WriteVarBytes(fromAssetHash, buffer);
@@ -575,6 +585,7 @@ namespace Nep5Proxy
             buffer = WriteUint255(feeAmount, buffer);
             buffer = WriteVarBytes(feeAddress, buffer);
             buffer = WriteVarBytes(fromAddress, buffer);
+            buffer = WriteUint255(nonce, buffer);
             return buffer;
         }
 
@@ -602,7 +613,10 @@ namespace Nep5Proxy
             res = ReadVarBytes(buffer, (int)res[1]);
             var fromAddress = res[0];
 
-            return new object[] { fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress };
+            res = ReadUint255(buffer, (int)res[1]);
+            var nonce = res[0];
+
+            return new object[] { fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress, nonce };
         }
 
         private static byte[] SerializeRegisterAssetArgs(byte[] assetHash, byte[] nativeAssetHash)

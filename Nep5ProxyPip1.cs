@@ -26,10 +26,6 @@ namespace Nep5Proxy
 
         public static object Main(string method, object[] args)
         {
-            if (Runtime.Trigger == TriggerType.Verification)
-            {
-                return true;
-            }
             if (Runtime.Trigger == TriggerType.Application)
             {
                 var callscript = ExecutionEngine.CallingScriptHash;

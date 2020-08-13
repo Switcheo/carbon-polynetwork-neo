@@ -12,8 +12,13 @@ namespace Nep5Proxy
     public class Nep5ProxyPip1 : SmartContract
     {
         // Constants
-        private static readonly byte Version = 0x02;
+        private static readonly byte Version = 0x03;
         private static readonly byte[] CCMCScriptHash = "7f25d672e8626d2beaa26f2cb40da6b91f40a382".HexToBytes(); // little endian
+        private static readonly byte[] WithdrawArgs = { 0x00, 0xc1, 0x08, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77 };  // PUSH0, PACK, PUSHBYTES8, "withdraw" as bytes
+        private static readonly byte[] OpCode_TailCall = { 0x69 };
+        private static readonly byte TAUsage_WithdrawalAssetHash = 0xa2;
+        private static readonly byte TAUsage_WithdrawalAddress = 0xa4;
+
 
         // Dynamic Call
         private delegate object DynCall(string method, object[] args); // dynamic call
@@ -23,9 +28,18 @@ namespace Nep5Proxy
         public static event Action<byte[], BigInteger, byte[], byte[], byte[]> RegisterAssetEvent;
         public static event Action<byte[], byte[], BigInteger, byte[], byte[], BigInteger, byte[]> LockEvent;
         public static event Action<byte[], byte[], BigInteger, byte[]> UnlockEvent;
+        public static event Action<byte[], byte[], BigInteger> WithdrawEvent;
 
         public static object Main(string method, object[] args)
         {
+            if (Runtime.Trigger == TriggerType.Verification)
+            {
+              var currentTxn = (Transaction)ExecutionEngine.ScriptContainer;
+              if (currentTxn.Type != InvocationTransactionType) return false;
+              if (((InvocationTransaction)currentTxn).Script != WithdrawArgs.Concat(OpCode_TailCall).Concat(ExecutionEngine.ExecutingScriptHash)) return false;
+              return true; // WARNING: we only check for invocation script, so any neo / gas sent here is unsafe as utxos are unchecked!
+            }
+
             if (Runtime.Trigger == TriggerType.Application)
             {
                 var callscript = ExecutionEngine.CallingScriptHash;
@@ -36,6 +50,8 @@ namespace Nep5Proxy
                     return GetAssetBalance((byte[])args[0]);
                 if (method == "getLockedBalance")
                     return GetLockedBalance((byte[])args[0], (BigInteger)args[1], (byte[])args[2], (byte[])args[3]);
+                if (method == "getWithdrawingBalance")
+                    return GetWithdrawingBalance((byte[])args[0], (byte[])args[1]);
                 if (method == "assetIsRegistered")
                     return AssetIsRegistered((byte[])args[0]);
                 if (method == "getRegistryKey")
@@ -48,7 +64,10 @@ namespace Nep5Proxy
                     return Lock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], (byte[])args[3], (byte[])args[4], (byte[])args[5], (BigInteger)args[6], (bool)args[7], (BigInteger)args[8], (byte[])args[9]);
                 if (method == "unlock")
                     return Unlock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
+                if (method == "withdraw")
+                    return Withdraw();
             }
+
             return false;
         }
 
@@ -73,6 +92,14 @@ namespace Nep5Proxy
             var nep5Contract = (DynCall)assetHash.ToDelegate();
             BigInteger balance = (BigInteger)nep5Contract("balanceOf", new object[] { currentHash });
             return balance;
+        }
+
+        [DisplayName("getWithdrawingBalance")]
+        public static BigInteger GetWithdrawingBalance(byte[] assetHash, byte[] address)
+        {
+            byte[] key = GetRegistryKey(assetHash, nativeAssetHash);
+            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(withdraw));
+            return balances.Get(key).AsBigInteger();
         }
 
         // used to delegate an asset to be managed by this contract
@@ -413,43 +440,77 @@ namespace Nep5Proxy
                 return false;
             }
 
-            byte[] key = GetRegistryKey(toAssetHash, fromChainId, fromProxyContract, fromAssetHash);
-            if (!AssetIsRegistered(key))
+            byte[] regKey = GetRegistryKey(toAssetHash, fromChainId, fromProxyContract, fromAssetHash);
+            if (!AssetIsRegistered(regKey))
             {
                 Runtime.Notify("This asset has not yet been registered");
                 return false;
             }
 
-            bool success = DecreaseBalance(key, amount);
+            bool success = DecreaseBalance(regKey, amount);
             if (!success)
             {
                 Runtime.Notify("Insufficient balance to unlock.");
                 return false;
             }
 
-            // transfer asset from proxy contract to toAddress
-            byte[] currentHash = ExecutionEngine.ExecutingScriptHash; // this proxy contract hash
-            var nep5Contract = (DynCall)toAssetHash.ToDelegate();
-            var afterFeeAmount = amount - feeAmount;
-            success = (bool)nep5Contract("transfer", new object[] { currentHash, toAddress, afterFeeAmount });
+            byte[] withdrawKey = GetWithdrawKey(toAssetHash, toAddress);
+            success = IncreaseWithdraw(withdrawKey, amount);
             if (!success)
             {
-                Runtime.Notify("Failed to transfer NEP5 token to toAddress.");
+                Runtime.Notify("Failed to increase withdrawing balance.");
                 return false;
             }
 
             if (feeAmount > 0)
             {
-                success = (bool)nep5Contract("transfer", new object[] { currentHash, feeAddress, feeAmount });
+                byte[] feeWithdrawKey = GetWithdrawKey(toAssetHash, feeAddress);
+                success = IncreaseWithdraw(feeWithdrawKey, feeAmount);
                 if (!success)
                 {
-                    Runtime.Notify("Failed to transfer NEP5 token to feeAddress.");
+                    Runtime.Notify("Failed to increase fee withdrawing balance.");
                     return false;
                 }
             }
 
             // last param, isFee: false
             UnlockEvent(toAssetHash, toAddress, amount, inputBytes);
+
+            return true;
+        }
+
+        public static bool Withdraw()
+        {
+            var currentTxn = (Transaction)ExecutionEngine.ScriptContainer;
+            var toAddress = GetWithdrawalAddress(currentTxn);
+            var toAssetHash = GetWithdrawalAsset(currentTxn);
+            var amount = GetWithdrawingBalance(toAssetHash, toAddress);
+
+            if (amount <= 0)
+            {
+              Runtime.Notify("Withdrawing amount is non-positive.");
+              return false;
+            }
+
+            byte[] withdrawKey = GetWithdrawKey(toAssetHash, toAddress);
+            bool success = DecreaseWithdraw(withdrawKey, amount);
+            if (!success)
+            {
+                Runtime.Notify("Failed to decrease withdrawing balance.");
+                return false;
+            }
+
+            // transfer asset from proxy contract to toAddress
+            byte[] currentHash = ExecutionEngine.ExecutingScriptHash; // this proxy contract hash
+            var nep5Contract = (DynCall)toAssetHash.ToDelegate();
+            success = (bool)nep5Contract("transfer", new object[] { currentHash, toAddress, amount });
+            if (!success)
+            {
+                Runtime.Notify("Failed to transfer NEP5 token to toAddress.");
+                return false;
+            }
+
+            WithdrawEvent(toAssetHash, toAddress, amount);
 
             return true;
         }
@@ -462,6 +523,11 @@ namespace Nep5Proxy
             byte[] nativeAssetHashBz = Hash256(nativeAssetHash);
 
             return Hash256(assetHashBz.Concat(nativeChainIdBz).Concat(nativeLockProxyBz).Concat(nativeAssetHashBz));
+        }
+
+        public static byte[] GetWithdrawKey(byte[] assetHash, byte[] address)
+        {
+          return assetHash.Concat(address);
         }
 
         public static bool AssetIsRegistered(byte[] key)
@@ -495,13 +561,19 @@ namespace Nep5Proxy
 
             return true;
         }
-
-        private static BigInteger GetNextNonce()
+        private static bool IncreaseWithdraw(byte[] key, BigInteger amount)
         {
-            var nonce = Storage.Get("nonce").AsBigInteger();
-            var newNonce = nonce + 1;
-            Storage.Put("nonce", newNonce);
-            return newNonce;
+            if (amount < 0)
+            {
+                return false;
+            }
+
+            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(withdraw));
+            BigInteger currentBalance = balances.Get(key).AsBigInteger();
+            BigInteger newBalance = currentBalance + amount;
+            balances.Put(key, newBalance);
+
+            return true;
         }
 
         private static bool DecreaseBalance(byte[] key, BigInteger amount)
@@ -521,6 +593,53 @@ namespace Nep5Proxy
 
             balances.Put(key, newBalance);
             return true;
+        }
+
+        private static bool DecreaseWithdraw(byte[] key, BigInteger amount)
+        {
+            if (amount < 0)
+            {
+                return false;
+            }
+
+            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(withdraw));
+            BigInteger currentBalance = balances.Get(key).AsBigInteger();
+            BigInteger newBalance = currentBalance - amount;
+            if (newBalance < 0)
+            {
+                return false;
+            }
+
+            balances.Put(key, newBalance);
+            return true;
+        }
+
+        private static byte[] GetWithdrawalAddress(Transaction transaction)
+        {
+            var txnAttributes = transaction.GetAttributes();
+            foreach (var attr in txnAttributes)
+            {
+                if (attr.Usage == TAUsage_WithdrawalAddress) return attr.Data.Take(20);
+            }
+            throw new ArgumentNullException();
+        }
+
+        private static byte[] GetWithdrawalAsset(Transaction transaction)
+        {
+            var txnAttributes = transaction.GetAttributes();
+            foreach (var attr in txnAttributes)
+            {
+                if (attr.Usage == TAUsage_WithdrawalAssetHash) return attr.Data.Take(20);
+            }
+            throw new ArgumentNullException();
+        }
+
+        private static BigInteger GetNextNonce()
+        {
+            var nonce = Storage.Get("nonce").AsBigInteger();
+            var newNonce = nonce + 1;
+            Storage.Put("nonce", newNonce);
+            return newNonce;
         }
 
         private static object[] ReadUint255(byte[] buffer, int offset)

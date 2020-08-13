@@ -18,7 +18,7 @@ namespace Nep5Proxy
         private static readonly byte[] OpCode_TailCall = { 0x69 };
         private static readonly byte TAUsage_WithdrawalAssetHash = 0xa2;
         private static readonly byte TAUsage_WithdrawalAddress = 0xa4;
-
+        private static readonly byte InvocationTransactionType = 0xd1;
 
         // Dynamic Call
         private delegate object DynCall(string method, object[] args); // dynamic call
@@ -97,9 +97,9 @@ namespace Nep5Proxy
         [DisplayName("getWithdrawingBalance")]
         public static BigInteger GetWithdrawingBalance(byte[] assetHash, byte[] address)
         {
-            byte[] key = GetRegistryKey(assetHash, nativeAssetHash);
-            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(withdraw));
-            return balances.Get(key).AsBigInteger();
+            byte[] key = GetWithdrawKey(assetHash, address);
+            StorageMap withdrawals = Storage.CurrentContext.CreateMap(nameof(withdrawals));
+            return withdrawals.Get(key).AsBigInteger();
         }
 
         // used to delegate an asset to be managed by this contract
@@ -561,6 +561,7 @@ namespace Nep5Proxy
 
             return true;
         }
+
         private static bool IncreaseWithdraw(byte[] key, BigInteger amount)
         {
             if (amount < 0)
@@ -568,10 +569,10 @@ namespace Nep5Proxy
                 return false;
             }
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(withdraw));
-            BigInteger currentBalance = balances.Get(key).AsBigInteger();
+            StorageMap withdrawals = Storage.CurrentContext.CreateMap(nameof(withdrawals));
+            BigInteger currentBalance = withdrawals.Get(key).AsBigInteger();
             BigInteger newBalance = currentBalance + amount;
-            balances.Put(key, newBalance);
+            withdrawals.Put(key, newBalance);
 
             return true;
         }
@@ -602,15 +603,15 @@ namespace Nep5Proxy
                 return false;
             }
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(nameof(withdraw));
-            BigInteger currentBalance = balances.Get(key).AsBigInteger();
+            StorageMap withdrawals = Storage.CurrentContext.CreateMap(nameof(withdrawals));
+            BigInteger currentBalance = withdrawals.Get(key).AsBigInteger();
             BigInteger newBalance = currentBalance - amount;
             if (newBalance < 0)
             {
                 return false;
             }
 
-            balances.Put(key, newBalance);
+            withdrawals.Put(key, newBalance);
             return true;
         }
 

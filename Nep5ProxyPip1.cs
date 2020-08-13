@@ -34,10 +34,10 @@ namespace Nep5Proxy
         {
             if (Runtime.Trigger == TriggerType.Verification)
             {
-              var currentTxn = (Transaction)ExecutionEngine.ScriptContainer;
-              if (currentTxn.Type != InvocationTransactionType) return false;
-              if (((InvocationTransaction)currentTxn).Script != WithdrawArgs.Concat(OpCode_TailCall).Concat(ExecutionEngine.ExecutingScriptHash)) return false;
-              return true; // WARNING: we only check for invocation script, so any neo / gas sent here is unsafe as utxos are unchecked!
+                var currentTxn = (Transaction)ExecutionEngine.ScriptContainer;
+                if (currentTxn.Type != InvocationTransactionType) return false;
+                if (((InvocationTransaction)currentTxn).Script != WithdrawArgs.Concat(OpCode_TailCall).Concat(ExecutionEngine.ExecutingScriptHash)) return false;
+                return true; // WARNING: we only check for invocation script, so any neo / gas sent here is unsafe as utxos are unchecked!
             }
 
             if (Runtime.Trigger == TriggerType.Application)
@@ -109,11 +109,13 @@ namespace Nep5Proxy
 #endif
         private static bool DelegateAsset(BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply, byte[] assetHash)
         {
-            if (!IsValidByteArray(nativeLockProxy)) {
+            if (!IsValidByteArray(nativeLockProxy))
+            {
                 Runtime.Notify("The parameter nativeLockProxy is too long");
                 return false;
             }
-            if (!IsValidByteArray(nativeAssetHash)) {
+            if (!IsValidByteArray(nativeAssetHash))
+            {
                 Runtime.Notify("The parameter nativeAssetHash is too long");
                 return false;
             }
@@ -202,15 +204,18 @@ namespace Nep5Proxy
             var assetHash = (byte[])results[0];
             var nativeAssetHash = (byte[])results[1];
 
-            if (!IsValidByteArray(assetHash)) {
+            if (!IsValidByteArray(assetHash))
+            {
                 Runtime.Notify("The parameter assetHash is too long");
                 return false;
             }
-            if (!IsValidByteArray(nativeAssetHash)) {
+            if (!IsValidByteArray(nativeAssetHash))
+            {
                 Runtime.Notify("The parameter nativeAssetHash is too long");
                 return false;
             }
-            if (!IsValidByteArray(fromProxyContract)) {
+            if (!IsValidByteArray(fromProxyContract))
+            {
                 Runtime.Notify("The parameter fromProxyContract is too long");
                 return false;
             }
@@ -233,19 +238,23 @@ namespace Nep5Proxy
         [DisplayName("lock")]
         public static bool Lock(byte[] fromAssetHash, byte[] fromAddress, BigInteger toChainId, byte[] targetProxyHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, bool deductFeeInLock, BigInteger feeAmount, byte[] feeAddress)
         {
-            if (!IsValidByteArray(targetProxyHash)) {
+            if (!IsValidByteArray(targetProxyHash))
+            {
                 Runtime.Notify("The parameter targetProxyHash is too long");
                 return false;
             }
-            if (!IsValidByteArray(toAssetHash)) {
+            if (!IsValidByteArray(toAssetHash))
+            {
                 Runtime.Notify("The parameter toAssetHash is too long");
                 return false;
             }
-            if (!IsValidByteArray(toAddress)) {
+            if (!IsValidByteArray(toAddress))
+            {
                 Runtime.Notify("The parameter toAddress is too long");
                 return false;
             }
-            if (!IsValidByteArray(feeAddress)) {
+            if (!IsValidByteArray(feeAddress))
+            {
                 Runtime.Notify("The parameter feeAddress is too long");
                 return false;
             }
@@ -312,7 +321,8 @@ namespace Nep5Proxy
                 return false;
             }
 
-            if (feeAmount > amount) {
+            if (feeAmount > amount)
+            {
                 Runtime.Notify("FeeAmount cannot be greater than Amount");
                 return false;
             }
@@ -397,15 +407,18 @@ namespace Nep5Proxy
             var feeAddress = (byte[])results[5];
             var fromAddress = (byte[])results[6];
 
-            if (!IsValidByteArray(fromAssetHash)) {
+            if (!IsValidByteArray(fromAssetHash))
+            {
                 Runtime.Notify("The parameter fromAssetHash is too long");
                 return false;
             }
-            if (!IsValidByteArray(fromAddress)) {
+            if (!IsValidByteArray(fromAddress))
+            {
                 Runtime.Notify("The parameter fromAddress is too long");
                 return false;
             }
-            if (!IsValidByteArray(feeAddress)) {
+            if (!IsValidByteArray(feeAddress))
+            {
                 Runtime.Notify("The parameter feeAddress is too long");
                 return false;
             }
@@ -435,7 +448,8 @@ namespace Nep5Proxy
                 Runtime.Notify("ToChain FeeAddress SHOULD be 20-byte long.");
                 return false;
             }
-            if (feeAmount > amount) {
+            if (feeAmount > amount)
+            {
                 Runtime.Notify("FeeAmount cannot be greater than Amount");
                 return false;
             }
@@ -488,8 +502,8 @@ namespace Nep5Proxy
 
             if (amount <= 0)
             {
-              Runtime.Notify("Withdrawing amount is non-positive.");
-              return false;
+                Runtime.Notify("Withdrawing amount is non-positive.");
+                return false;
             }
 
             byte[] withdrawKey = GetWithdrawKey(toAssetHash, toAddress);
@@ -527,7 +541,7 @@ namespace Nep5Proxy
 
         public static byte[] GetWithdrawKey(byte[] assetHash, byte[] address)
         {
-          return assetHash.Concat(address);
+            return assetHash.Concat(address);
         }
 
         public static bool AssetIsRegistered(byte[] key)
@@ -538,7 +552,7 @@ namespace Nep5Proxy
 
         private static bool IsValidByteArray(byte[] bz)
         {
-          return bz.Length <= 256;
+            return bz.Length <= 256;
         }
 
         private static void MarkAssetAsRegistered(byte[] key)
@@ -562,21 +576,6 @@ namespace Nep5Proxy
             return true;
         }
 
-        private static bool IncreaseWithdraw(byte[] key, BigInteger amount)
-        {
-            if (amount < 0)
-            {
-                return false;
-            }
-
-            StorageMap withdrawals = Storage.CurrentContext.CreateMap(nameof(withdrawals));
-            BigInteger currentBalance = withdrawals.Get(key).AsBigInteger();
-            BigInteger newBalance = currentBalance + amount;
-            withdrawals.Put(key, newBalance);
-
-            return true;
-        }
-
         private static bool DecreaseBalance(byte[] key, BigInteger amount)
         {
             if (amount < 0)
@@ -593,6 +592,21 @@ namespace Nep5Proxy
             }
 
             balances.Put(key, newBalance);
+            return true;
+        }
+
+        private static bool IncreaseWithdraw(byte[] key, BigInteger amount)
+        {
+            if (amount < 0)
+            {
+                return false;
+            }
+
+            StorageMap withdrawals = Storage.CurrentContext.CreateMap(nameof(withdrawals));
+            BigInteger currentBalance = withdrawals.Get(key).AsBigInteger();
+            BigInteger newBalance = currentBalance + amount;
+            withdrawals.Put(key, newBalance);
+
             return true;
         }
 

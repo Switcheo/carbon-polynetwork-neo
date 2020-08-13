@@ -35,7 +35,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2.5: 168972920fbf22190f6e01f112e90dfcc1fc83ed1df52cb4bf9d0b10b3a3c031
 // lockproxy v2.6: 81cd6805250cd1cdfdd40a9c73327cd2b81cdd3c2b9b9d4d645526a4887e1569
 
-// contract script hashes:
+// contract script hashes (big endian => little endian):
 // lockproxy v1: 8a7297e50d0d952e67f798719ed31b4528cc6ae3
 // lockproxy v2: 0e2d9fd9f03f00dbdf85fa34e760ca4333d46312
 // swth v1: a37f9d94d45138e435f6dfe0bb5a04422b1e7f0e
@@ -49,6 +49,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v2.6: 533fb0db7993b9f9d3acba4b798948ab2c354b0d => 0d4b352cab4889794bbaacd3f9b99379dbb03f53 => AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS
 // lockproxy v2.7: f4b0901562246e6d09cba791321dc56be4cc87a8 => a887cce46bc51d3291a7cb096d6e24621590b0f4
 // lockproxy v2.8: c29cf157a74f7e3d9b791756e768f60af3fe5fd0 => d05ffef30af668e75617799b3d7e4fa757f19cc2
+// lockproxy v2.9: dbe94ce9b8cc0c52d5b7dba7cc001aac81174160 => 60411781ac1a00cca7dbb7d5520cccb8e94ce9db
 
 // invocation txns:
 // swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
@@ -254,14 +255,14 @@ async function run() {
   // })
   invoke({
     account: subAccount,
-    scriptHash: 'c29cf157a74f7e3d9b791756e768f60af3fe5fd0',
+    scriptHash: 'dbe94ce9b8cc0c52d5b7dba7cc001aac81174160',
     operation: 'lock',
     args: [
       '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
       u.reverseHex(subAccount.scriptHash), // fromAddress
-      181, // toChainId
+      183, // toChainId
       'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-      u.str2hexstring('swth9'), // toAssetHash
+      u.str2hexstring('swth2'), // toAssetHash
       '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
       (new BigNumber(1000)).toNumber(), // amount
       false, // deductFeeInLock

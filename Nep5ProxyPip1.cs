@@ -143,6 +143,13 @@ namespace Nep5Proxy
                 return false;
             }
 
+            success = IncreaseBalance(key, delegatedSupply);
+            if (!success)
+            {
+                Runtime.Notify("Failed to increase balance.");
+                return false;
+            }
+
             DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
 
             return true;

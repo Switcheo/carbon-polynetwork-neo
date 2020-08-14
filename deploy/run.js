@@ -8,72 +8,17 @@ const tokenavm = require('./swthtoken.json')
 // neo devnet ccmc: de3ba846755178778c38a149d0fe0812d540c127
 // https://github.com/polynetwork/docs/blob/master/config/README_DevNet.md
 
-// input txns:
-// b7715f82306a2d241aa9f841600eff82ba7f932cd8f22575cf86ebf0d2f7139c
-// 6706e864fc71ba2ac29a0925b0c5eeedc76df2fd4546cd2e2fcad7193bd9171f
-// 36fbe9733f61a239c188ccc94f0718838afb32caff29ac4a66952ba787f27630
-// 6ef15743241f785cfcb1a2e7b8b1aab7704dbad0d79fd26366be3a9280b5e40c
-// dce6244b1f093e63249ca6a634f4135ab6999cb49ec6f2099f4c70d6f70bc04d
-// 5e170cec508b34aa00ced3f3e899ed3444fe2692a0eb9bd91d7c3684d69d0bdc
-// d825dea475f2d80e53c4c6d121d9135a49dbac4150850641a2c960dbffa6d16f
-// fefa66d14b55dad4fe18c8f7ef545278a0adb0dee22eaa5e4f561315fb0818d5
-// 284b9f224c13b012d0b830ef6ce1c7f6632a45797dd4dc011d51580051515eba
-// 61e8e29e4794429a80558ca70781687d23f99bdc02aeb99613cc99e4e92cc0ad
-// 63d0f30f978607f1ca8f08d2c05196d17e786f3849d27b6c7ff8ef96d2f653cc
-// 9a4a940e42a5491f425ecad78dd5ea9380c4d8a281996d7552b0fe04075567bc
-// f96c5dc3e5c7774875d0e6d78f90b7eabc6ef8582ebdac0a989f9ef4b084195d
-
-// deploy txns:
-// swth v1: ca8da41a697cd5bc646b2bfc67d6c10e4d3a2620f9cc996b2d1cedecc1c9fdc0
-// swth v2: 5c0a483cc2a331ec9eb280b819d5584beb95f7a163fd667f344bacc1e1c8fbd3
-// swth v2.1: b72e737ca2cfe273ca67dd8cbab38fcb1abea37f9ca76e0a529087da5832102b
-// swth v2.2: 51d9d5b41f305c3443e38a303c63d81990434cf83f9bf2fa4c8e7d5b5b675b0c
-//
-// lockproxy v2: d41836a79732c3077a175aabe4dc28ae823eedc51ed7f01f7887c65bb29c477d
-// lockproxy v2.3: 02698d307b3fe306023f35114d87bbbeb1544fce7dd83226d5628e598e29cba1
-// lockproxy v2.4: 640cd035950dccf12bda53b41838447024477d432ef0e25bce13d491f418d88a
-// lockproxy v2.5: 168972920fbf22190f6e01f112e90dfcc1fc83ed1df52cb4bf9d0b10b3a3c031
-// lockproxy v2.6: 81cd6805250cd1cdfdd40a9c73327cd2b81cdd3c2b9b9d4d645526a4887e1569
-
 // contract script hashes (big endian => little endian):
-// lockproxy v1: 8a7297e50d0d952e67f798719ed31b4528cc6ae3
-// lockproxy v2: 0e2d9fd9f03f00dbdf85fa34e760ca4333d46312
-// swth v1: a37f9d94d45138e435f6dfe0bb5a04422b1e7f0e
-// swth v2: c9937a56c882087a204f0ab33a25fd7a5290ed27 => 27ed90527afd253ab30a4f207a0882c8567a93c9
-// swth v6: 6992d8ba60540c7c5b464533543098a1bc04c040 => 40c004bca19830543345465b7c0c5460bad89269
-// lockproxy v2.1: fa992729c38778afbf8dba51c5bc546611aba08a => 8aa0ab116654bcc551ba8dbfaf7887c3292799fa
-// lockproxy v2.2: 97b13d8f09d8ee8e3203359e6204156004de3499 => 9934de04601504629e3503328eeed8098f3db197
-// lockproxy v2.3: 1414b81e37a1b4248e0e5134155c71dd2e6a8cd9 => d98c6a2edd715c1534510e8e24b4a1371eb81414
-// lockproxy v2.4: 534f3f32a61b81b88b97b796d62c83aab0d8728e => 8e72d8b0aa832cd696b7978bb8811ba6323f4f53 => AUm5BQgmA4Kzx6gAJryCp38xcDuYh9X961
-// lockproxy v2.5: 5faf564a13601fc39b7e1a3bbc862c450538fa89 => 89fa3805452c86bc3b1a7e9bc31f60134a56af5f => AUMRyHfpzgWphxnptXwjbDBrkFcy6hQUeb
-// lockproxy v2.6: 533fb0db7993b9f9d3acba4b798948ab2c354b0d => 0d4b352cab4889794bbaacd3f9b99379dbb03f53 => AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS
-// lockproxy v2.7: f4b0901562246e6d09cba791321dc56be4cc87a8 => a887cce46bc51d3291a7cb096d6e24621590b0f4
-// lockproxy v2.8: c29cf157a74f7e3d9b791756e768f60af3fe5fd0 => d05ffef30af668e75617799b3d7e4fa757f19cc2
-// lockproxy v2.9: dbe94ce9b8cc0c52d5b7dba7cc001aac81174160 => 60411781ac1a00cca7dbb7d5520cccb8e94ce9db
+// lockproxy v3.19: 6facde7eb7a8dae4ae3ee3557c2d26558b02d409 => 09d4028b55262d7c55e33eaee4daa8b77edeac6f
+// lockproxy v3.20: aaeb1e6ed5f789a4e9febbee5e59edfb6a47212c
+// lockproxy v3.21: ceb996f5ef78473ba305fb37cab50218d25b7a5a
+// lockproxy v3.22: da6f7917af5f565d46eeeb0d763c9584c9234e8c
+// lockproxy v3.22: 109c7f5d53dbc043a2ebaf051e51b305c1cf1cc8
+// lockproxy v3.23: 7579283605ec18af1313ee8b8f7576d7681591a0
+// lockproxy v3.23: 7ef72e0cbdd1c651ca31fe3859a2bf06219e185a
+// lockproxy v3.24: f563cf6250fae2f81e6ef3a315726e4d51a4d256
 
-// invocation txns:
-// swth_v2.deploy: 8fd47f792f7a0cd0ba511b221071ce21b2022d857eec0bd6eead8e3fe01492ce
-
-// relayer txns:
-// register asset: f7b340660e018ee840036ae2022ae5d98196e30005203e8ccc85326e8fee8671 => success
-// unknown txn: 845055931d770f7d15c6b056e67b1709893486884ad9541280f0333d8f670269 => success
-// register asset: fae354613e6f3005801c1a517e9f59e2ee91df6c69bd2b74fc10f25df245ac60 => success
-//    RegisterAssetEvent(
-//      nativeAssetHash, 27ed90527afd253ab30a4f207a0882c8567a93c9
-//      fromChainId, 178
-//      fromProxyContract, db8afcccebc026c6cae1d541b25f80a83b065c8a
-//      assetHash 7377746833
-//    )
-//
-// register asset: 7e75ce74d4ea439570b97f0ca5a1841a5886ed1377e662967a97f8f129b0d812 => success
-//
-// lock: cd0d4c165e707e059563a9ca587f2c93e571c70488429bc96a523bde1c00c5ac => error: "This asset has not yet been registered"
-// lock: b8b7985cd013a960a84d991f2a5639ec4f84bfbd1ba9be6b180eb1ca1f53fb56 => error: "This asset has not yet been registered"
-// lock: 2f55f08fca5aaca29dc4846fe2bff3c4339d29e262fdcdff6b20c6a3932df27d => success
-// lock: 1da7cf5e23844f3d23476cb636a239283d2aa1c71f71acb3821a6c8fda7becce => error
-// lock: d9535e2e740177333c50b053f7e8bda56d1a7682b20d6bf82cfdb36c64976b90 => error
-// lock: ab272d221dd99c3eb6b0746d944ff47ca7f8b4b3356d35f67efa3914ef47c4d5
-// lock: b3bf4c8e0b8ac0dd4f7bfb82f99f7f052fff11d4ba8301a40b45c6fbda2d3580
+// lock: 9db46955cbd589080436baecdf3592d5affaba255c1a9549d6d786cade29c852 => error: value out of range
 
 const net = 'NeoDevNet'
 const url = 'http://47.89.240.111:12332'
@@ -168,6 +113,20 @@ async function invoke({ account, scriptHash, operation, args }) {
   console.log('res', res)
 }
 
+async function invokeScript({ account, script }) {
+  const apiProvider = new api.neoCli.instance(url)
+  // Neon API
+  const res = await Neon.doInvoke({
+    api: apiProvider,
+    url: url,
+    account,
+    script,
+    gas: 20,
+    fees: 0
+  })
+  console.log('res', res)
+}
+
 async function query({ scriptHash, operation, args }) {
   const sb = Neon.create.scriptBuilder()
   sb.emitAppCall(scriptHash, operation, args);
@@ -212,6 +171,44 @@ async function sendTransaction({ account, receiver, gas }) {
   console.log('res', res)
 }
 
+async function deployLockProxy(account) {
+  await deploy({
+    name: 'Nep5ProxyPip1',
+    script: proxyavm.script,
+    account: account,
+  })
+}
+
+async function sendLockTxn(account) {
+  invoke({
+    account: account,
+    scriptHash: 'c6d4e7a61c8aabc9e30e527a0b130870efb7b3fc',
+    operation: 'lock',
+    args: [
+      '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
+      u.reverseHex(account.scriptHash), // fromAddress
+      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
+      u.str2hexstring('token10'), // toAssetHash
+      '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
+      (new BigNumber(1000)).toNumber(), // amount
+      // (new BigNumber(100000000000)).toNumber(), // amount
+      false, // deductFeeInLock
+      (new BigNumber(0)).toNumber(), // feeAmount
+      'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
+    ]
+  })
+  // invoke({
+  //   account: account,
+  //   scriptHash: '2266efd4a7fce62f3ac9511db2f3b171ceb26fc9',
+  //   operation: 'lock',
+  //   args: [
+  //     186, // toChainId
+  //     'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
+  //     '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // inputArgs
+  //   ]
+  // })
+}
+
 async function run() {
   // const tokenScriptHash = 'c9937a56c882087a204f0ab33a25fd7a5290ed27'
   const mainAccount = Neon.create.account(process.env.mainControlKey)
@@ -219,6 +216,19 @@ async function run() {
   const subAccount = Neon.create.account(process.env.subControlKey)
   console.log('subAccount', subAccount.address)
 
+  // await deployLockProxy(mainAccount)
+  await sendLockTxn(subAccount)
+
+  // await transfer({
+  //    fromAccount: mainAccount,
+  //    toAccount: subAccount,
+  //    amount: 1001
+  // })
+
+  // await invokeScript({
+  //   account: subAccount,
+  //   script: '4d450195134fdb1b329db8bc2d3dbab7278301abd7e1217f38408a67d7b7f4ae07fac06981d88029c4ad0682c4dd81496937c174b91e853d64c6b65dd19fa5e60e377901ac28e1eaf0054ce2cc1700f2a950fca838b2df250b65b6d60a979ca77d8f6bb94bcf11deb695baab97e0af206038a62fafa8beea7f3a4df7448306c75ec467f601a2ef497c9c3b560e093f3c0d6e0e06235614d170586405337e5f3536e3e8e5c37a2e2d2f044ed7dbc2c8cf79d0a58d224c4c38639cab93d7720101fd78eef52d0025e90a9087d9fb9d5415990725d56c9013b46e58c6991b2ed711d65c624561cf238f7b46617d46ba8a992a08337fb731ed2cd4bb5a551865ef2ae5857ba7516101242459f612ed0c833ae2aa1af2025d77da3152477b3b8e76d83002d4f91364ed7f74734b6c853d81ef60ea35f896bda5f03b8ce1954fe25ce4cbd538676b92c80000004dbf01000000009b91561700000000c3bd8952ea26e469e465522ded94f7773663dca90caf73ddedd44de822a3bcb10000000000000000000000000000000000000000000000000000000000000000d7fc1b3f7aa1583a558a336fb4e63018fa89d2e51db1728d1ac4ace1644ce3fce2909ba25ef475a5f97c3e5479836f757407ed9410517bf1ebb1422ea1b60b5b8133355f730c0000c68365cb3bf5314bfd0c017b226c6561646572223a342c227672665f76616c7565223a224250576a4245546a714373702f366f3037514a49384837354864594b326759426e766c735a4d57625934656e2f384164515a6173314a73763066347154314c6650433570726c5a72576f64716d703530355562776439673d222c227672665f70726f6f66223a224a786530726d6f48426c554433634a503565612f44375a6e6d7a4c554f66787a5a79566b416735616b726463497636474e6f556c663671336136694d5651544155354f624762534d587a414c494e716d397173716d513d3d222c226c6173745f636f6e6669675f626c6f636b5f6e756d223a302c226e65775f636861696e5f636f6e666967223a6e756c6c7d00000000000000000000000000000000000000004d3001fd2d0120872583e4c5b02854c61bd951a8c677212c31968b791b9b667c3325b6370437f6ba0000000000000020addfa2773e36a34e96e4b6fc0d8c685de619ac0d7fcec2148262b93bf509a933010a14db8afcccebc026c6cae1d541b25f80a83b065c8a04000000000000001409d4028b55262d7c55e33eaee4daa8b77edeac6f06756e6c6f636ba7067377746831301427ed90527afd253ab30a4f207a0882c8567a93c914e73ed2f9ca9bc382547d7712b6ee7e8d17b9e9b96400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014aa83739c25970ae1eddaa0b596835e4a9e12d3db00010000000000000000000000000000000000000000000000000000000000000055c112566572696679416e64457865637574655478671d012718c07eca226f5b5916fd9d8ff887a5df42'
+  // })
   // const num = new BigNumber('1000')
   // console.log('num', num.toString(16))
 
@@ -253,22 +263,6 @@ async function run() {
   //   operation: 'deploy',
   //   args: []
   // })
-  invoke({
-    account: subAccount,
-    scriptHash: 'dbe94ce9b8cc0c52d5b7dba7cc001aac81174160',
-    operation: 'lock',
-    args: [
-      '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
-      u.reverseHex(subAccount.scriptHash), // fromAddress
-      183, // toChainId
-      'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-      u.str2hexstring('swth2'), // toAssetHash
-      '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
-      (new BigNumber(1000)).toNumber(), // amount
-      (new BigNumber(0)).toNumber(), // feeAmount
-      'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
-    ]
-  })
 
   // const num = new BigNumber(Number.MAX_SAFE_INTEGER)
   // const num2 = new BigNumber(Number.MAX_SAFE_INTEGER)
@@ -288,16 +282,6 @@ async function run() {
 
   // await getUnspents(subAccount.address)
   // await getRawTransaction(hash)
-  // await transfer({
-  //    fromAccount: mainAccount,
-  //    toAccount: subAccount,
-  //    amount: 1001
-  // })
-  // await deploy({
-  //   name: 'Nep5ProxyPip1',
-  //   script: proxyavm.script,
-  //   account: subAccount,
-  // })
   // await deploy({
   //   name: 'SWTH Token 6',
   //   script: tokenavm.script,

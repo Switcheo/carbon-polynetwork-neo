@@ -12,6 +12,7 @@ namespace Nep5Proxy
     public class Nep5ProxyPip1 : SmartContract
     {
         // Constants
+        private static readonly BigInteger CounterpartChainID = new BigInteger(186);
         private static readonly byte Version = 0x03;
         private static readonly byte[] CCMCScriptHash = "1d012718c07eca226f5b5916fd9d8ff887a5df42".HexToBytes(); // little endian
         private static readonly byte[] WithdrawArgs = { 0x00, 0xc1, 0x08, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77 };  // PUSH0, PACK, PUSHBYTES8, "withdraw" as bytes
@@ -49,19 +50,19 @@ namespace Nep5Proxy
                 if (method == "getAssetBalance")
                     return GetAssetBalance((byte[])args[0]);
                 if (method == "getLockedBalance")
-                    return GetLockedBalance((byte[])args[0], (BigInteger)args[1], (byte[])args[2], (byte[])args[3]);
+                    return GetLockedBalance((byte[])args[0], (byte[])args[2], (byte[])args[3]);
                 if (method == "getWithdrawingBalance")
                     return GetWithdrawingBalance((byte[])args[0], (byte[])args[1]);
                 if (method == "assetIsRegistered")
                     return AssetIsRegistered((byte[])args[0]);
                 if (method == "getRegistryKey")
-                    return GetRegistryKey((byte[])args[0], (BigInteger)args[1], (byte[])args[2], (byte[])args[3]);
+                    return GetRegistryKey((byte[])args[0], (byte[])args[2], (byte[])args[3]);
                 if (method == "delegateAsset")
-                    return DelegateAsset((BigInteger)args[0], (byte[])args[1], (byte[])args[2], (BigInteger)args[3], callscript);
+                    return DelegateAsset((byte[])args[1], (byte[])args[2], (BigInteger)args[3], callscript);
                 if (method == "registerAsset")
                     return RegisterAsset((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
                 if (method == "lock")
-                    return Lock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], (byte[])args[3], (byte[])args[4], (byte[])args[5], (BigInteger)args[6], (bool)args[7], (BigInteger)args[8], (byte[])args[9]);
+                    return Lock((byte[])args[0], (byte[])args[1], (byte[])args[2], (byte[])args[3], (byte[])args[4], (BigInteger)args[5], (BigInteger)args[6], (byte[])args[7]);
                 if (method == "unlock")
                     return Unlock((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
                 if (method == "withdraw")
@@ -78,9 +79,9 @@ namespace Nep5Proxy
         }
 
         [DisplayName("getLockedBalance")]
-        public static BigInteger GetLockedBalance(byte[] assetHash, BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash)
+        public static BigInteger GetLockedBalance(byte[] assetHash, byte[] nativeLockProxy, byte[] nativeAssetHash)
         {
-            byte[] key = GetRegistryKey(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+            byte[] key = GetRegistryKey(assetHash, nativeLockProxy, nativeAssetHash);
             StorageMap balances = Storage.CurrentContext.CreateMap(nameof(balances));
             return balances.Get(key).AsBigInteger();
         }
@@ -105,25 +106,10 @@ namespace Nep5Proxy
         // used to delegate an asset to be managed by this contract
 #if DEBUG
         [DisplayName("delegateAsset")] //Only for ABI file
-        public static bool DelegateAsset(BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply) => true;
+        public static bool DelegateAsset(byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply) => true;
 #endif
-        private static bool DelegateAsset(BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply, byte[] assetHash)
+        private static bool DelegateAsset(byte[] nativeLockProxy, byte[] nativeAssetHash, BigInteger delegatedSupply, byte[] assetHash)
         {
-            if (!IsValidByteArray(nativeLockProxy))
-            {
-                Runtime.Notify("The parameter nativeLockProxy is too long");
-                return false;
-            }
-            if (!IsValidByteArray(nativeAssetHash))
-            {
-                Runtime.Notify("The parameter nativeAssetHash is too long");
-                return false;
-            }
-            if (nativeChainId == 0)
-            {
-                Runtime.Notify("The parameter nativeChainId must not be zero");
-                return false;
-            }
             if (nativeLockProxy.Length == 0)
             {
                 Runtime.Notify("The parameter nativeLockProxy must not be empty");
@@ -135,7 +121,7 @@ namespace Nep5Proxy
                 return false;
             }
 
-            byte[] key = GetRegistryKey(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+            byte[] key = GetRegistryKey(assetHash, nativeLockProxy, nativeAssetHash);
 
             if (AssetIsRegistered(key))
             {
@@ -162,7 +148,7 @@ namespace Nep5Proxy
             var inputArgs = SerializeRegisterAssetArgs(assetHash, nativeAssetHash);
 
             // construct params for CCMC
-            var param = new object[] { nativeChainId, nativeLockProxy, "registerAsset", inputArgs };
+            var param = new object[] { CounterpartChainID, nativeLockProxy, "registerAsset", inputArgs };
             // dynamic call CCMC
             var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
             bool success = (bool)ccmc("CrossChain", param);
@@ -179,7 +165,7 @@ namespace Nep5Proxy
                 return false;
             }
 
-            DelegateAssetEvent(assetHash, nativeChainId, nativeLockProxy, nativeAssetHash);
+            DelegateAssetEvent(assetHash, CounterpartChainID, nativeLockProxy, nativeAssetHash);
 
             return true;
         }
@@ -191,6 +177,12 @@ namespace Nep5Proxy
 #endif
         private static bool RegisterAsset(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
         {
+            if (fromChainId != CounterpartChainID)
+            {
+                Runtime.Notify("Invalid fromChainId");
+                return false;
+            }
+
             //only allowed to be called by CCMC
             if (caller.AsBigInteger() != CCMCScriptHash.AsBigInteger())
             {
@@ -204,23 +196,7 @@ namespace Nep5Proxy
             var assetHash = (byte[])results[0];
             var nativeAssetHash = (byte[])results[1];
 
-            if (!IsValidByteArray(assetHash))
-            {
-                Runtime.Notify("The parameter assetHash is too long");
-                return false;
-            }
-            if (!IsValidByteArray(nativeAssetHash))
-            {
-                Runtime.Notify("The parameter nativeAssetHash is too long");
-                return false;
-            }
-            if (!IsValidByteArray(fromProxyContract))
-            {
-                Runtime.Notify("The parameter fromProxyContract is too long");
-                return false;
-            }
-
-            byte[] key = GetRegistryKey(nativeAssetHash, fromChainId, fromProxyContract, assetHash);
+            byte[] key = GetRegistryKey(nativeAssetHash, fromProxyContract, assetHash);
 
             if (AssetIsRegistered(key))
             {
@@ -229,35 +205,15 @@ namespace Nep5Proxy
             }
 
             MarkAssetAsRegistered(key);
-            RegisterAssetEvent(nativeAssetHash, fromChainId, fromProxyContract, assetHash, key);
+            RegisterAssetEvent(nativeAssetHash, CounterpartChainID, fromProxyContract, assetHash, key);
 
             return true;
         }
 
         // used to lock asset into proxy contract
         [DisplayName("lock")]
-        public static bool Lock(byte[] fromAssetHash, byte[] fromAddress, BigInteger toChainId, byte[] targetProxyHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, bool deductFeeInLock, BigInteger feeAmount, byte[] feeAddress)
+        public static bool Lock(byte[] fromAssetHash, byte[] fromAddress, byte[] targetProxyHash, byte[] toAssetHash, byte[] toAddress, BigInteger amount, BigInteger feeAmount, byte[] feeAddress)
         {
-            if (!IsValidByteArray(targetProxyHash))
-            {
-                Runtime.Notify("The parameter targetProxyHash is too long");
-                return false;
-            }
-            if (!IsValidByteArray(toAssetHash))
-            {
-                Runtime.Notify("The parameter toAssetHash is too long");
-                return false;
-            }
-            if (!IsValidByteArray(toAddress))
-            {
-                Runtime.Notify("The parameter toAddress is too long");
-                return false;
-            }
-            if (!IsValidByteArray(feeAddress))
-            {
-                Runtime.Notify("The parameter feeAddress is too long");
-                return false;
-            }
             if (fromAssetHash.Length != 20)
             {
                 Runtime.Notify("The parameter fromAssetHash SHOULD be 20-byte long.");
@@ -268,14 +224,9 @@ namespace Nep5Proxy
                 Runtime.Notify("The parameter fromAddress SHOULD be 20-byte long.");
                 return false;
             }
-            if (toChainId == 0)
+            if (targetProxyHash.Length != 20)
             {
-                Runtime.Notify("The parameter toChainId SHOULD not be zero.");
-                return false;
-            }
-            if (targetProxyHash.Length == 0)
-            {
-                Runtime.Notify("The parameter targetProxyHash SHOULD not be empty.");
+                Runtime.Notify("The parameter targetProxyHash SHOULD be be 20-byte long.");
                 return false;
             }
             if (toAssetHash.Length == 0)
@@ -298,22 +249,8 @@ namespace Nep5Proxy
                 Runtime.Notify("The parameter feeAmount SHOULD not be less than 0.");
                 return false;
             }
-            if (feeAmount > 0)
-            {
-                if (feeAddress.Length == 0)
-                {
-                    Runtime.Notify("The parameter feeAddress SHOULD not be empty.");
-                    return false;
-                }
 
-                if (deductFeeInLock && feeAddress.Length != 20)
-                {
-                    Runtime.Notify("The parameter feeAddress SHOULD be 20-byte long.");
-                    return false;
-                }
-            }
-
-            byte[] key = GetRegistryKey(fromAssetHash, toChainId, targetProxyHash, toAssetHash);
+            byte[] key = GetRegistryKey(fromAssetHash, targetProxyHash, toAssetHash);
 
             if (!AssetIsRegistered(key))
             {
@@ -337,28 +274,15 @@ namespace Nep5Proxy
                 return false;
             }
 
-            if (feeAmount > 0 && deductFeeInLock)
-            {
-                // reduce amount by the feeAmount
-                amount = amount - feeAmount;
-                // set the feeAmount to zero since the fee has already been deducted
-                feeAmount = 0;
-
-                // transfer fee to feeAddress
-                success = (bool)nep5Contract("transfer", new object[] { currentHash, feeAddress, amount });
-                if (!success)
-                {
-                    Runtime.Notify("Failed to transfer NEP5 token to feeAddress.");
-                    return false;
-                }
-            }
-
+            var tx = (Transaction)ExecutionEngine.ScriptContainer;
             // get next nonce
-            var nonce = GetNextNonce();
+            byte[] txHash = tx.Hash;
+            var nonce = new BigInteger(txHash);
             // construct args for proxy contract on target chain
             var inputArgs = SerializeArgs(fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress, nonce);
             // construct params for CCMC
-            var param = new object[] { toChainId, targetProxyHash, "unlock", inputArgs };
+            var param = new object[] { CounterpartChainID, targetProxyHash, "unlock", inputArgs };
+            Runtime.Notify(param);
             // dynamic call CCMC
             var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
             success = (bool)ccmc("CrossChain", param);
@@ -375,7 +299,7 @@ namespace Nep5Proxy
                 return false;
             }
 
-            LockEvent(fromAssetHash, fromAddress, toChainId, toAssetHash, toAddress, amount, inputArgs);
+            LockEvent(fromAssetHash, fromAddress, CounterpartChainID, toAssetHash, toAddress, amount, inputArgs);
 
             return true;
         }
@@ -388,6 +312,11 @@ namespace Nep5Proxy
         // Methods of actual execution, used to unlock asset from proxy contract
         private static bool Unlock(byte[] inputBytes, byte[] fromProxyContract, BigInteger fromChainId, byte[] caller)
         {
+            if (fromChainId != CounterpartChainID) {
+                Runtime.Notify("Invalid fromChainId");
+                return false;
+            }
+
             //only allowed to be called by CCMC
             if (caller.AsBigInteger() != CCMCScriptHash.AsBigInteger())
             {
@@ -403,25 +332,6 @@ namespace Nep5Proxy
             var toAssetHash = (byte[])results[1];
             var toAddress = (byte[])results[2];
             var amount = (BigInteger)results[3];
-            var feeAmount = (BigInteger)results[4];
-            var feeAddress = (byte[])results[5];
-            var fromAddress = (byte[])results[6];
-
-            if (!IsValidByteArray(fromAssetHash))
-            {
-                Runtime.Notify("The parameter fromAssetHash is too long");
-                return false;
-            }
-            if (!IsValidByteArray(fromAddress))
-            {
-                Runtime.Notify("The parameter fromAddress is too long");
-                return false;
-            }
-            if (!IsValidByteArray(feeAddress))
-            {
-                Runtime.Notify("The parameter feeAddress is too long");
-                return false;
-            }
 
             if (toAssetHash.Length != 20)
             {
@@ -438,23 +348,8 @@ namespace Nep5Proxy
                 Runtime.Notify("ToChain Amount SHOULD not be less than 0.");
                 return false;
             }
-            if (feeAmount < 0)
-            {
-                Runtime.Notify("ToChain FeeAmount SHOULD not be less than 0.");
-                return false;
-            }
-            if (feeAmount > 0 && feeAddress.Length != 20)
-            {
-                Runtime.Notify("ToChain FeeAddress SHOULD be 20-byte long.");
-                return false;
-            }
-            if (feeAmount > amount)
-            {
-                Runtime.Notify("FeeAmount cannot be greater than Amount");
-                return false;
-            }
 
-            byte[] regKey = GetRegistryKey(toAssetHash, fromChainId, fromProxyContract, fromAssetHash);
+            byte[] regKey = GetRegistryKey(toAssetHash, fromProxyContract, fromAssetHash);
             if (!AssetIsRegistered(regKey))
             {
                 Runtime.Notify("This asset has not yet been registered");
@@ -476,18 +371,6 @@ namespace Nep5Proxy
                 return false;
             }
 
-            if (feeAmount > 0)
-            {
-                byte[] feeWithdrawKey = GetWithdrawKey(toAssetHash, feeAddress);
-                success = IncreaseWithdraw(feeWithdrawKey, feeAmount);
-                if (!success)
-                {
-                    Runtime.Notify("Failed to increase fee withdrawing balance.");
-                    return false;
-                }
-            }
-
-            // last param, isFee: false
             UnlockEvent(toAssetHash, toAddress, amount, inputBytes);
 
             return true;
@@ -529,14 +412,9 @@ namespace Nep5Proxy
             return true;
         }
 
-        public static byte[] GetRegistryKey(byte[] assetHash, BigInteger nativeChainId, byte[] nativeLockProxy, byte[] nativeAssetHash)
+        public static byte[] GetRegistryKey(byte[] assetHash, byte[] nativeLockProxy, byte[] nativeAssetHash)
         {
-            byte[] assetHashBz = Hash256(assetHash);
-            byte[] nativeChainIdBz = Hash256(nativeChainId.AsByteArray());
-            byte[] nativeLockProxyBz = Hash256(nativeLockProxy);
-            byte[] nativeAssetHashBz = Hash256(nativeAssetHash);
-
-            return Hash256(assetHashBz.Concat(nativeChainIdBz).Concat(nativeLockProxyBz).Concat(nativeAssetHashBz));
+            return Hash256(assetHash.Concat(nativeLockProxy).Concat(nativeAssetHash));
         }
 
         public static byte[] GetWithdrawKey(byte[] assetHash, byte[] address)
@@ -548,11 +426,6 @@ namespace Nep5Proxy
         {
             StorageMap registry = Storage.CurrentContext.CreateMap(nameof(registry));
             return registry.Get(key).Length != 0;
-        }
-
-        private static bool IsValidByteArray(byte[] bz)
-        {
-            return bz.Length <= 256;
         }
 
         private static void MarkAssetAsRegistered(byte[] key)
@@ -649,14 +522,6 @@ namespace Nep5Proxy
             throw new ArgumentNullException();
         }
 
-        private static BigInteger GetNextNonce()
-        {
-            var nonce = Storage.Get("nonce").AsBigInteger();
-            var newNonce = nonce + 1;
-            Storage.Put("nonce", newNonce);
-            return newNonce;
-        }
-
         private static object[] ReadUint255(byte[] buffer, int offset)
         {
             if (offset + 32 > buffer.Length)
@@ -741,19 +606,7 @@ namespace Nep5Proxy
             res = ReadUint255(buffer, (int)res[1]);
             var amount = res[0];
 
-            res = ReadUint255(buffer, (int)res[1]);
-            var feeAmount = res[0];
-
-            res = ReadVarBytes(buffer, (int)res[1]);
-            var feeAddress = res[0];
-
-            res = ReadVarBytes(buffer, (int)res[1]);
-            var fromAddress = res[0];
-
-            res = ReadUint255(buffer, (int)res[1]);
-            var nonce = res[0];
-
-            return new object[] { fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress, nonce };
+            return new object[] { fromAssetHash, toAssetHash, toAddress, amount };
         }
 
         private static byte[] SerializeRegisterAssetArgs(byte[] assetHash, byte[] nativeAssetHash)

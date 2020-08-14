@@ -265,7 +265,6 @@ async function run() {
       u.str2hexstring('swth2'), // toAssetHash
       '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
       (new BigNumber(1000)).toNumber(), // amount
-      false, // deductFeeInLock
       (new BigNumber(0)).toNumber(), // feeAmount
       'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
     ]

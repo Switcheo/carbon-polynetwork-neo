@@ -128,6 +128,82 @@ async function invokeScript({ account, script }) {
   console.log('res', res)
 }
 
+async function sendWithdrawTxn(account, assetHash) {
+  const scriptHash = "e7eaa8b61702f77db667cc5e7dc593d9c1cfe0de" // big endian
+  const props = {
+    scriptHash,
+    operation: "withdraw",
+    args: [],
+    useTailCall: true
+  }
+  const script = Neon.create.script(props)
+
+  // create raw invocation transaction
+  let rawTransaction = new tx.InvocationTransaction({
+    script,
+    gas: 0
+  })
+
+  // attach contract as signer
+  rawTransaction.addAttribute(
+    tx.TxAttrUsage.Script,
+    u.reverseHex(scriptHash)
+  )
+
+  // withdraw asset
+  rawTransaction.addAttribute(
+    0xa2,
+    u.reverseHex(assetHash).padEnd(64, '0'),
+  )
+
+  // withdraw address
+  rawTransaction.addAttribute(
+    0xa4,
+    u.reverseHex(wallet.getScriptHashFromAddress(account.address)).padEnd(64, '0'),
+  )
+
+  const inputObj = {
+    prevHash: 'fba1f010ab192feaf0946ec6b689103048d19e3ae09cbfdb6cc94dc440f56107',
+    prevIndex: 0
+  }
+
+  const outputObj = {
+    assetId: CONST.ASSET_ID.GAS,
+    value: 0.1,
+    scriptHash: account.scriptHash
+  }
+
+  rawTransaction.inputs[0] = new tx.TransactionInput(inputObj)
+  rawTransaction.addOutput(new tx.TransactionOutput(outputObj))
+
+  // sign txn
+  const signature = wallet.sign(
+    rawTransaction.serialize(false),
+    account.privateKey
+  )
+
+  // add user witness
+  rawTransaction.addWitness(
+    tx.Witness.fromSignature(signature, account.publicKey)
+  )
+
+  // add contract additional witness
+  const witness = new tx.Witness({
+    invocationScript: '0000',
+    verificationScript: '',
+  })
+  witness.scriptHash = scriptHash
+  rawTransaction.addWitness(witness)
+
+  console.log('rawTransaction', rawTransaction)
+  console.log('rawTransaction.hash', rawTransaction.hash)
+
+  // Send raw transaction
+  // const client = new rpc.RPCClient(url);
+  // const res = await client.sendRawTransaction(rawTransaction)
+  // console.log('res', res)
+}
+
 async function query({ scriptHash, operation, args }) {
   const sb = Neon.create.scriptBuilder()
   sb.emitAppCall(scriptHash, operation, args);
@@ -189,7 +265,7 @@ async function sendLockTxn(account) {
       '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
       u.reverseHex(account.scriptHash), // fromAddress
       'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-      u.str2hexstring('swth11'), // toAssetHash
+      u.str2hexstring('swth12'), // toAssetHash
       '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
       (new BigNumber(1000)).toNumber(), // amount
       // (new BigNumber(100000000000)).toNumber(), // amount
@@ -217,12 +293,29 @@ async function run() {
   console.log('subAccount', subAccount.address)
 
   // await deployLockProxy(mainAccount)
-  // await sendLockTxn(subAccount)
+  await sendLockTxn(subAccount)
+  // await sendWithdrawTxn(mainAccount, 'c9937a56c882087a204f0ab33a25fd7a5290ed27')
+
+  // const mainAccBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', mainAccount.address)
+  // console.log('mainAccBalance', mainAccBalance.toString())
+  //
+  // const subAccBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', subAccount.address)
+  // console.log('subAccBalance', subAccBalance.toString())
+  //
+  // const lpAddress = 'Ac6LyGL9oAzAj83NAEnH1EByYoxettbX6S'
+  // const lpBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', lpAddress)
+  // console.log('lpBalance', lpBalance.toString())
 
   // await transfer({
   //    fromAccount: mainAccount,
   //    toAccount: subAccount,
   //    amount: 1001
+  // })
+
+  // await transfer({
+  //    fromAccount: subAccount,
+  //    toAccount: mainAccount,
+  //    amount: 0.1
   // })
 
   // await invokeScript({
@@ -231,6 +324,12 @@ async function run() {
   // })
   // const num = new BigNumber('1000')
   // console.log('num', num.toString(16))
+
+  // query({
+  //   scriptHash: 'e7eaa8b61702f77db667cc5e7dc593d9c1cfe0de',
+  //   operation: 'getWithdrawingBalance',
+  //   args: ['27ed90527afd253ab30a4f207a0882c8567a93c9', 'e73ed2f9ca9bc382547d7712b6ee7e8d17b9e9b9']
+  // })
 
   // query({
   //   scriptHash: '533fb0db7993b9f9d3acba4b798948ab2c354b0d',

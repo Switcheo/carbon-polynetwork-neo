@@ -51,7 +51,7 @@ namespace Nep5Proxy
                     return GetAssetBalance((byte[])args[0]);
                 if (method == "getWithdrawingBalance")
                     return GetWithdrawingBalance((byte[])args[0], (byte[])args[1]);
-                if (method == "fetchRegistryValue")
+                if (method == "getRegistryValue")
                     return GetRegistryValue((byte[])args[0]);
                 if (method == "delegateAsset")
                     return DelegateAsset((byte[])args[0], (byte[])args[1], callscript);

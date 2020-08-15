@@ -18,6 +18,7 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v3.23: 7ef72e0cbdd1c651ca31fe3859a2bf06219e185a
 // lockproxy v3.24: f563cf6250fae2f81e6ef3a315726e4d51a4d256
 // lockproxy v3.25: e7eaa8b61702f77db667cc5e7dc593d9c1cfe0de => dee0cfc1d993c57d5ecc67b67df70217b6a8eae7
+// lockproxy v3.26: 51039e4120fea26c398d4e3464a202d655996d71 => 716d9955d602a264344e8d396ca2fe20419e0351
 
 // lock: 9db46955cbd589080436baecdf3592d5affaba255c1a9549d6d786cade29c852 => error: value out of range
 
@@ -259,18 +260,19 @@ async function deployLockProxy(account) {
 async function sendLockTxn(account) {
   invoke({
     account: account,
-    scriptHash: 'e7eaa8b61702f77db667cc5e7dc593d9c1cfe0de',
+    scriptHash: '51039e4120fea26c398d4e3464a202d655996d71',
     operation: 'lock',
     args: [
       '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
       u.reverseHex(account.scriptHash), // fromAddress
       'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-      u.str2hexstring('swth12'), // toAssetHash
+      u.str2hexstring('swth24'), // toAssetHash
       '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
       (new BigNumber(1000)).toNumber(), // amount
       // (new BigNumber(100000000000)).toNumber(), // amount
       (new BigNumber(0)).toNumber(), // feeAmount
-      'aa83739c25970ae1eddaa0b596835e4a9e12d3db' // feeAddress
+      'aa83739c25970ae1eddaa0b596835e4a9e12d3db', // feeAddress
+      (new BigNumber(771)).toNumber()
     ]
   })
   // invoke({

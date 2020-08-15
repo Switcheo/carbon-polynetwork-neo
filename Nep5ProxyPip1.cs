@@ -240,7 +240,7 @@ namespace Nep5Proxy
             var inputArgs = SerializeArgs(fromAssetHash, toAssetHash, toAddress, amount, feeAmount, feeAddress, fromAddress, nonce);
             // construct params for CCMC
             var param = new object[] { CounterpartChainID, targetProxyHash, "unlock", inputArgs };
-            Runtime.Notify(param);
+
             // dynamic call CCMC
             var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
             success = (bool)ccmc("CrossChain", param);

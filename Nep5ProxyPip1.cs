@@ -14,7 +14,8 @@ namespace Nep5Proxy
         // Constants
         private static readonly BigInteger CounterpartChainID = new BigInteger(186);
         private static readonly byte Version = 0x03;
-        private static readonly byte[] CCMCScriptHash = "1d012718c07eca226f5b5916fd9d8ff887a5df42".HexToBytes(); // little endian
+        private static readonly byte[] CCMCScriptHash = "7f25d672e8626d2beaa26f2cb40da6b91f40a382".HexToBytes(); // little endian
+        private static readonly byte[] SwthScriptHash = "32e125258b7db0a0dffde5bd03b2b859253538ab".HexToBytes(); // little endian
         private static readonly byte[] WithdrawArgs = { 0x00, 0xc1, 0x08, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77 };  // PUSH0, PACK, PUSHBYTES8, "withdraw" as bytes
         private static readonly byte[] OpCode_TailCall = { 0x69 };
         private static readonly byte TAUsage_WithdrawalAssetHash = 0xa2;
@@ -290,6 +291,13 @@ namespace Nep5Proxy
                 Runtime.Notify("ToChain Asset script hash SHOULD be 20-byte long.");
                 return false;
             }
+
+            if (toAssetHash.AsBigInteger() == SwthScriptHash.AsBigInteger())
+            {
+                Runtime.Notify("ToAssetHash cannot be equal to SwthScriptHash.");
+                return false;
+            }
+
             if (toAddress.Length != 20)
             {
                 Runtime.Notify("ToChain Account address SHOULD be 20-byte long.");

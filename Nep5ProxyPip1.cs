@@ -12,7 +12,7 @@ namespace Nep5Proxy
     public class Nep5ProxyPip1 : SmartContract
     {
         // Constants
-        private static readonly BigInteger CounterpartChainID = new BigInteger(186);
+        private static readonly BigInteger CounterpartChainID = new BigInteger(5);
         private static readonly byte Version = 0x03;
         private static readonly byte[] CCMCScriptHash = "7f25d672e8626d2beaa26f2cb40da6b91f40a382".HexToBytes(); // little endian
         private static readonly byte[] SwthScriptHash = "32e125258b7db0a0dffde5bd03b2b859253538ab".HexToBytes(); // little endian

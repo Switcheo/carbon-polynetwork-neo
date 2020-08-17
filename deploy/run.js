@@ -20,10 +20,12 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v3.25: e7eaa8b61702f77db667cc5e7dc593d9c1cfe0de => dee0cfc1d993c57d5ecc67b67df70217b6a8eae7
 // lockproxy v3.26: 51039e4120fea26c398d4e3464a202d655996d71 => 716d9955d602a264344e8d396ca2fe20419e0351
 
+// mainnet lockproxy v3.0: cd19745dbf1305f206978ddcfdcb7fca6ef6d017 => 17d0f66eca7fcbfddc8d9706f20513bf5d7419cd
+
 // lock: 9db46955cbd589080436baecdf3592d5affaba255c1a9549d6d786cade29c852 => error: value out of range
 
 const net = 'NeoDevNet'
-const url = 'http://47.89.240.111:12332'
+const url = 'http://seed.neoeconomy.io:10332'
 
 function addNetwork() {
   const network = new rpc.Network({
@@ -295,7 +297,7 @@ async function run() {
   console.log('subAccount', subAccount.address)
 
   // await deployLockProxy(mainAccount)
-  await sendLockTxn(subAccount)
+  // await sendLockTxn(subAccount)
   // await sendWithdrawTxn(mainAccount, 'c9937a56c882087a204f0ab33a25fd7a5290ed27')
 
   // const mainAccBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', mainAccount.address)
@@ -381,7 +383,7 @@ async function run() {
   // const lpBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS')
   // console.log('lpBalance', lpBalance.toString())
 
-  // await getUnspents(subAccount.address)
+  await getUnspents(mainAccount.address)
   // await getRawTransaction(hash)
   // await deploy({
   //   name: 'SWTH Token 6',

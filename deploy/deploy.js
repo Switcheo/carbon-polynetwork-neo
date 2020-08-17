@@ -5,7 +5,7 @@ const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
 
 const net = 'NeoDevNet'
-const url = 'http://47.89.240.111:12332'
+const url = 'http://seed.neoeconomy.io:10332'
 
 function addNetwork() {
   const network = new rpc.Network({

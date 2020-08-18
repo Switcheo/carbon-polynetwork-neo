@@ -25,7 +25,7 @@ const tokenavm = require('./swthtoken.json')
 // lock: 9db46955cbd589080436baecdf3592d5affaba255c1a9549d6d786cade29c852 => error: value out of range
 
 const net = 'NeoDevNet'
-const url = 'http://seed.neoeconomy.io:10332'
+const url = 'http://47.89.240.111:12332'
 
 function addNetwork() {
   const network = new rpc.Network({
@@ -260,6 +260,8 @@ async function deployLockProxy(account) {
 }
 
 async function sendLockTxn(account) {
+  const nonce = Math.floor(Math.random() * 1000000)
+
   invoke({
     account: account,
     scriptHash: '51039e4120fea26c398d4e3464a202d655996d71',
@@ -269,12 +271,11 @@ async function sendLockTxn(account) {
       u.reverseHex(account.scriptHash), // fromAddress
       'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
       u.str2hexstring('swth24'), // toAssetHash
-      '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
+      'fbd171408fef58a5590f4d237680ab43b2add4d4', // toAddress
       (new BigNumber(1000)).toNumber(), // amount
-      // (new BigNumber(100000000000)).toNumber(), // amount
       (new BigNumber(0)).toNumber(), // feeAmount
       'aa83739c25970ae1eddaa0b596835e4a9e12d3db', // feeAddress
-      (new BigNumber(771)).toNumber()
+      nonce
     ]
   })
   // invoke({
@@ -297,7 +298,7 @@ async function run() {
   console.log('subAccount', subAccount.address)
 
   // await deployLockProxy(mainAccount)
-  // await sendLockTxn(subAccount)
+  await sendLockTxn(subAccount)
   // await sendWithdrawTxn(mainAccount, 'c9937a56c882087a204f0ab33a25fd7a5290ed27')
 
   // const mainAccBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', mainAccount.address)
@@ -383,7 +384,7 @@ async function run() {
   // const lpBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS')
   // console.log('lpBalance', lpBalance.toString())
 
-  await getUnspents(mainAccount.address)
+  // await getUnspents(mainAccount.address)
   // await getRawTransaction(hash)
   // await deploy({
   //   name: 'SWTH Token 6',

@@ -5,7 +5,7 @@ const protocol = require('./protocol.json')
 const proxyavm = require('./nep5proxypip1.json')
 const tokenavm = require('./swthtoken.json')
 
-// neo devnet ccmc: de3ba846755178778c38a149d0fe0812d540c127
+// neo devnet ccmc: 1d012718c07eca226f5b5916fd9d8ff887a5df42
 // https://github.com/polynetwork/docs/blob/master/config/README_DevNet.md
 
 // contract script hashes (big endian => little endian):

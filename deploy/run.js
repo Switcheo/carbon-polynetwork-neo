@@ -1,3 +1,4 @@
+const fetch = require('node-fetch')
 const { default: Neon, tx, wallet, rpc, u, nep5, api, CONST } = require("@cityofzion/neon-js");
 const BigNumber = require('bignumber.js');
 
@@ -19,13 +20,15 @@ const tokenavm = require('./swthtoken.json')
 // lockproxy v3.24: f563cf6250fae2f81e6ef3a315726e4d51a4d256
 // lockproxy v3.25: e7eaa8b61702f77db667cc5e7dc593d9c1cfe0de => dee0cfc1d993c57d5ecc67b67df70217b6a8eae7
 // lockproxy v3.26: 51039e4120fea26c398d4e3464a202d655996d71 => 716d9955d602a264344e8d396ca2fe20419e0351
+// lockproxy v3.27: dc61ed561fb0f7ecd25b09f0d72bbe03e28e99ba => ba998ee203be2bd7f0095bd2ecf7b01f56ed61dc
+// lockproxy v3.28: 58b6ec1a3aa67a25c24bdc69805fc09486dcce4f => 4fcedc8694c05f8069dc4bc2257aa63a1aecb658
 
 // mainnet lockproxy v3.0: cd19745dbf1305f206978ddcfdcb7fca6ef6d017 => 17d0f66eca7fcbfddc8d9706f20513bf5d7419cd
 
 // lock: 9db46955cbd589080436baecdf3592d5affaba255c1a9549d6d786cade29c852 => error: value out of range
 
 const net = 'NeoDevNet'
-const url = 'http://47.89.240.111:12332'
+const url = 'http://13.82.229.252:11332'
 
 function addNetwork() {
   const network = new rpc.Network({
@@ -264,14 +267,14 @@ async function sendLockTxn(account) {
 
   invoke({
     account: account,
-    scriptHash: '51039e4120fea26c398d4e3464a202d655996d71',
+    scriptHash: 'dc61ed561fb0f7ecd25b09f0d72bbe03e28e99ba',
     operation: 'lock',
     args: [
       '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
       u.reverseHex(account.scriptHash), // fromAddress
       'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-      u.str2hexstring('swth24'), // toAssetHash
-      'fbd171408fef58a5590f4d237680ab43b2add4d4', // toAddress
+      u.str2hexstring('swth4'), // toAssetHash
+      '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
       (new BigNumber(1000)).toNumber(), // amount
       (new BigNumber(0)).toNumber(), // feeAmount
       'aa83739c25970ae1eddaa0b596835e4a9e12d3db', // feeAddress
@@ -384,6 +387,7 @@ async function run() {
   // const lpBalance = await nep5.getTokenBalance(url, 'c9937a56c882087a204f0ab33a25fd7a5290ed27', 'AGzAXWroWqR4nNzK8ULbLyWRsePCAqocDS')
   // console.log('lpBalance', lpBalance.toString())
 
+  // await getUnspents('AYStUFPmruWbkkpQyhr6jpEMx1HxtMNstr')
   // await getUnspents(mainAccount.address)
   // await getRawTransaction(hash)
   // await deploy({

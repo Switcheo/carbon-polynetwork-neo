@@ -1,8 +1,8 @@
+
 setNeonApiProvider(networkToCall);
 
 //Notify user if contract exists
 getContractState(contract_scripthash, false);
-
 
 // ================================================================================
 // automatic claim
@@ -90,4 +90,67 @@ if ($("#cbxAdvSignToggle")[0].checked) {
     handleInvoke(res, txHash, invokeParams, contract_scripthash);
         })
         .catch(handleErrorInvoke);
+}
+
+async function transfer({ fromAccount, toAccount, amount }) {
+  const intent = api.makeIntent({ GAS: amount }, toAccount.address)
+  const apiProvider = new api.neoCli.instance(url)
+
+  const res = await Neon.sendAsset({
+    api: apiProvider, // Network
+    account: fromAccount, // Your Account
+    intents: intent, // Where you want to send assets to.
+    gas: 0, // Optional, system fee
+    fees: 0 // Optional, network fee
+  })
+
+  console.log('res', res)
+}
+
+async function invoke({ account, scriptHash, operation, args }) {
+  console.log('args', args)
+  // return
+  const sb = Neon.create.scriptBuilder()
+  // Your contract script hash, function name and parameters
+  sb.emitAppCall(scriptHash, operation, args);
+
+  // Returns a hexstring
+  const script = sb.str
+
+  const apiProvider = new api.neoCli.instance(url)
+  // Neon API
+  const res = await Neon.doInvoke({
+    api: apiProvider,
+    url: url,
+    account,
+    script,
+    gas: 0,
+    fees: 0
+  })
+  console.log('res', res)
+}
+
+async function invokeScript({ account, script }) {
+  const apiProvider = new api.neoCli.instance(url)
+  // Neon API
+  const res = await Neon.doInvoke({
+    api: apiProvider,
+    url: url,
+    account,
+    script,
+    gas: 20,
+    fees: 0
+  })
+  console.log('res', res)
+}
+
+async function sendTransaction({ account, receiver, gas }) {
+  const intent = api.makeIntent({ GAS: gas }, receiver)
+  const apiProvider = new api.neoCli.instance(url)
+  const res = await Neon.sendAsset({
+    api: apiProvider,
+    account,
+    intents: intent
+  })
+  console.log('res', res)
 }

@@ -92,6 +92,8 @@ if ($("#cbxAdvSignToggle")[0].checked) {
         .catch(handleErrorInvoke);
 }
 
+const url = 'http://13.82.229.252:11332'
+
 async function transfer({ fromAccount, toAccount, amount }) {
   const intent = api.makeIntent({ GAS: amount }, toAccount.address)
   const apiProvider = new api.neoCli.instance(url)

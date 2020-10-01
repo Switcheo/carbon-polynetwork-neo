@@ -2,6 +2,7 @@
 const { default: Neon, rpc } = require("@cityofzion/neon-js");
 
 const protocol = require('./protocol.json')
+const url = 'http://13.82.229.252:11332'
 
 function addNetwork() {
   const network = new rpc.Network({
@@ -44,3 +45,5 @@ async function query({ scriptHash, operation, args }) {
   console.log('res', res)
   console.log('stack', res.result.stack)
 }
+
+query({ scriptHash: '8ba0ac12a2d73cb21921cd0ce92308898846e1bc', operation: 'totalSupply', args: [] })

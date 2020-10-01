@@ -3,7 +3,7 @@
 ## Deployment
 
 1. Compile the contract at `Nep5ProxyPip1.cs` using [neocompiler](https://neocompiler.io/#!/ecolab/network)
-2. Note the address and script hash
+2. Note the address and script hash (big endian)
 3. Download the avm as hex file
 4. Pull the deploy script [here](https://github.com/Switcheo/switcheo-scripts/blob/master/deploy_neo_contract.js )
 5. Run: `npm install`
@@ -15,9 +15,9 @@
 
 ### Devnet
 
-- Address: ATgN3faEfY5bVH7mQDizqDCYAKtHFt9ckU
-- Big Endian ScriptHash: 0xef911d8e7ee943592a9615cd0368ef97158bfcb6
-- Little Endian ScriptHash: 6aff1a3020478057d424d1a08e22952865b89682
+- Address: AGcPYW5PpnhdT4SnkHpxLT7L1JHKsuTMMK
+- Big Endian ScriptHash: 0xe339df1177666d17308a06dc9386e8d82fec2c09
+- Little Endian ScriptHash: 092cec2fd8e88693dc068a30176d667711df39e3
 
 ### Mainnet
 

@@ -8,7 +8,7 @@
 4. Pull the deploy script [here](https://github.com/Switcheo/switcheo-scripts/blob/master/deploy_neo_contract.js )
 5. Run: `npm install`
 6. Copy the avm file to the script root.
-7. Run: `node ./deploy_neo_contract.js "Switcheo Nep5ProxyPip1" "1.0.0" "Switcheo TradeHub LockProxy Test" "01" "1000" "1" "./<filename>.avm" "<private key>"`
+7. Run: `node ./deploy_neo_contract.js "Switcheo Nep5ProxyPip1" "1.0.0" "Switcheo TradeHub LockProxy Test" "07" "1000" "1" "./<filename>.avm" "<private key>"`
 8. After successful deploy, update deployed contract addresses below and copy avm file to `./avm`
 
 ## Current deployed contracts

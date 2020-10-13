@@ -1,10 +1,7 @@
-const fetch = require('node-fetch')
 const { default: Neon, tx, wallet, rpc, u, nep5, api, CONST } = require("@cityofzion/neon-js");
 const BigNumber = require('bignumber.js');
 
 const protocol = require('./protocol.json')
-const proxyavm = require('./nep5proxypip1.json')
-const tokenavm = require('./swthtoken.json')
 
 // neo devnet ccmc: 1d012718c07eca226f5b5916fd9d8ff887a5df42
 // https://github.com/polynetwork/docs/blob/master/config/README_DevNet.md
@@ -267,15 +264,15 @@ async function sendLockTxn(account) {
 
   invoke({
     account: account,
-    scriptHash: 'dc61ed561fb0f7ecd25b09f0d72bbe03e28e99ba',
+    scriptHash: 'e339df1177666d17308a06dc9386e8d82fec2c09',
     operation: 'lock',
     args: [
-      '27ed90527afd253ab30a4f207a0882c8567a93c9', // fromAssetHash: swth_v2
+      'bce14688890823e90ccd2119b23cd7a212aca08b', // fromAssetHash: swth_v2
       u.reverseHex(account.scriptHash), // fromAddress
       'db8afcccebc026c6cae1d541b25f80a83b065c8a', // targetProxyHash
-      u.str2hexstring('swth4'), // toAssetHash
+      u.str2hexstring('swth-n-v2'), // toAssetHash
       '8eb00ad5e62947b77d89ad7ff62f23f5f406f019', // toAddress
-      (new BigNumber(1000)).toNumber(), // amount
+      (new BigNumber(42)).toNumber(), // amount
       (new BigNumber(0)).toNumber(), // feeAmount
       'aa83739c25970ae1eddaa0b596835e4a9e12d3db', // feeAddress
       nonce

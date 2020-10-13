@@ -21,7 +21,6 @@ namespace Nep5Proxy
         private delegate object DynCall(string method, object[] args); // dynamic call
 
         // Events
-        public static event Action<byte[], BigInteger, byte[], byte[]> DelegateAssetEvent;
         public static event Action<byte[], BigInteger, byte[], byte[]> RegisterAssetEvent;
         public static event Action<byte[], byte[], BigInteger, byte[], byte[], BigInteger, byte[]> LockEvent;
         public static event Action<byte[], byte[], BigInteger, byte[]> UnlockEvent;
@@ -38,8 +37,6 @@ namespace Nep5Proxy
                     return GetAssetBalance((byte[])args[0]);
                 if (method == "getRegistryValue")
                     return GetRegistryValue((byte[])args[0]);
-                if (method == "delegateAsset")
-                    return DelegateAsset((byte[])args[0], (byte[])args[1], callscript);
                 if (method == "registerAsset")
                     return RegisterAsset((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
                 if (method == "lock")
@@ -64,50 +61,6 @@ namespace Nep5Proxy
             var nep5Contract = (DynCall)assetHash.ToDelegate();
             BigInteger balance = (BigInteger)nep5Contract("balanceOf", new object[] { currentHash });
             return balance;
-        }
-
-        // used to delegate an asset to be managed by this contract
-#if DEBUG
-        [DisplayName("delegateAsset")] //Only for ABI file
-        public static bool DelegateAsset(byte[] nativeLockProxy, byte[] nativeAssetHash) => true;
-#endif
-        private static bool DelegateAsset(byte[] nativeLockProxy, byte[] nativeAssetHash, byte[] assetHash)
-        {
-            if (nativeLockProxy.Length == 0)
-            {
-                Runtime.Notify("The parameter nativeLockProxy must not be empty");
-                return false;
-            }
-            if (nativeAssetHash.Length == 0)
-            {
-                Runtime.Notify("The parameter nativeAssetHash must not be empty");
-                return false;
-            }
-
-            // mark asset in registry
-            bool success = MarkAssetAsRegistered(assetHash, nativeLockProxy, nativeAssetHash);
-            if (!success)
-            {
-                Runtime.Notify("Could not register asset.");
-                return false;
-            }
-
-            var inputArgs = SerializeRegisterAssetArgs(assetHash, nativeAssetHash);
-
-            // construct params for CCMC
-            var param = new object[] { CounterpartChainID, nativeLockProxy, "registerAsset", inputArgs };
-            // dynamic call CCMC
-            var ccmc = (DynCall)CCMCScriptHash.ToDelegate();
-            success = (bool)ccmc("CrossChain", param);
-            if (!success)
-            {
-                Runtime.Notify("Failed to call CCMC.");
-                return false;
-            }
-
-            DelegateAssetEvent(assetHash, CounterpartChainID, nativeLockProxy, nativeAssetHash);
-
-            return true;
         }
 
         // called by the CCM to register assets from a connected chain
@@ -286,7 +239,7 @@ namespace Nep5Proxy
             // transfer asset from proxy contract to toAddress
             byte[] currentHash = ExecutionEngine.ExecutingScriptHash; // this proxy contract hash
             var nep5Contract = (DynCall)toAssetHash.ToDelegate();
-            success = (bool)nep5Contract("transfer", new object[] { currentHash, toAddress, amount });
+            bool success = (bool)nep5Contract("transfer", new object[] { currentHash, toAddress, amount });
             if (!success)
             {
                 Runtime.Notify("Failed to transfer NEP5 token to toAddress.");

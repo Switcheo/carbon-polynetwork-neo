@@ -13,13 +13,19 @@
 
 ## Current deployed contracts
 
-### Devnet
+### Devnet Legacy
 
 - Address: AGcPYW5PpnhdT4SnkHpxLT7L1JHKsuTMMK
 - Big Endian ScriptHash: 0xe339df1177666d17308a06dc9386e8d82fec2c09
 - Little Endian ScriptHash: 092cec2fd8e88693dc068a30176d667711df39e3
 
-### Mainnet
+### Devnet Permissionless
+
+- Address: AW5h2a4SKi9gX2t3S6NL5fJtMyFDKFx77J
+- Big Endian ScriptHash: 0xf182e806c6e79cc086751904bf0f151d3562f09c
+- Little Endian ScriptHash: 9cf062351d150fbf04197586c09ce7c606e882f1
+
+### Mainnet Legacy
 
 - Address: AHwoWtUgwruKoGZ8hLrEHr1erESfd2Lf9Z
 - Big Endian ScriptHash: 0xcd19745dbf1305f206978ddcfdcb7fca6ef6d017

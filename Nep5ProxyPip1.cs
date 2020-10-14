@@ -13,9 +13,9 @@ namespace Nep5Proxy
     public class Nep5ProxyPip1 : SmartContract
     {
         // Constants
-        private static readonly BigInteger CounterpartChainID = new BigInteger(191);
-        private static readonly byte Version = 0x04;
-        private static readonly byte[] CCMCScriptHash = "7f25d672e8626d2beaa26f2cb40da6b91f40a382".HexToBytes(); // little endian // DevNet: 1d012718c07eca226f5b5916fd9d8ff887a5df42
+        private static readonly BigInteger CounterpartChainID = new BigInteger(192); // MainNet: 4
+        private static readonly byte Version = 0x05;
+        private static readonly byte[] CCMCScriptHash = "1d012718c07eca226f5b5916fd9d8ff887a5df42".HexToBytes(); // little endian // MainNet: 7f25d672e8626d2beaa26f2cb40da6b91f40a382
 
         // Dynamic Call
         private delegate object DynCall(string method, object[] args); // dynamic call
@@ -233,7 +233,7 @@ namespace Nep5Proxy
             if (!AssetIsRegistered(toAssetHash, fromProxyContract, fromAssetHash))
             {
                 Runtime.Notify("This asset has not yet been registered");
-                throw new ApplicationException(); // allow retrying after registration
+                throw new InvalidOperationException("This asset has not yet been registered"); // allow retrying after registration
             }
 
             // transfer asset from proxy contract to toAddress
@@ -243,7 +243,7 @@ namespace Nep5Proxy
             if (!success)
             {
                 Runtime.Notify("Failed to transfer NEP5 token to toAddress.");
-                throw new ApplicationException(); // allow retrying if nep-5 contract has temporary issue
+                throw new InvalidOperationException("Failed to transfer NEP5 token to toAddress."); // allow retrying if nep-5 contract has temporary issue
             }
 
             UnlockEvent(toAssetHash, toAddress, amount, inputBytes);

@@ -16,10 +16,10 @@ namespace Nep5Proxy
     public class Nep5ProxyPip1Legacy : SmartContract
     {
         // Constants
-        private static readonly BigInteger CounterpartChainID = new BigInteger(191);
-        private static readonly byte Version = 0x03;
+        private static readonly BigInteger CounterpartChainID = new BigInteger(192); // MainNet: 4
+        private static readonly byte Version = 0x04;
         private static readonly byte[] CCMCScriptHash = "1d012718c07eca226f5b5916fd9d8ff887a5df42".HexToBytes(); // little endian // MainNet: 7f25d672e8626d2beaa26f2cb40da6b91f40a382
-        private static readonly byte[] SwthScriptHash = "27ed90527afd253ab30a4f207a0882c8567a93c9".HexToBytes(); // little endian // MainNet: 32e125258b7db0a0dffde5bd03b2b859253538ab
+        private static readonly byte[] SwthScriptHash = "7e8eed881bca2d9583c336aca521cd6f55d00d04".HexToBytes(); // little endian // MainNet: 32e125258b7db0a0dffde5bd03b2b859253538ab
         private static readonly byte[] WithdrawArgs = { 0x00, 0xc1, 0x08, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77 };  // PUSH0, PACK, PUSHBYTES8, "withdraw" as bytes
         private static readonly byte[] OpCode_TailCall = { 0x69 };
         private static readonly byte TAUsage_WithdrawalAssetHash = 0xa2;

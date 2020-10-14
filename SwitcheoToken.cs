@@ -34,6 +34,7 @@ namespace Neo.SmartContract
             }
             else if (Runtime.Trigger == TriggerType.Application)
             {
+                var callscript = ExecutionEngine.CallingScriptHash;
                 if (operation == "totalSupply") return TotalSupply();
                 if (operation == "name") return Name();
                 if (operation == "symbol") return Symbol();
@@ -48,7 +49,7 @@ namespace Neo.SmartContract
                 if (operation == "transfer")
                 {
                     if (args.Length != 3) return false;
-                    return Transfer((byte[])args[0], (byte[])args[1], (BigInteger)args[2]);
+                    return Transfer((byte[])args[0], (byte[])args[1], (BigInteger)args[2], callscript);
                 }
             }
             return false;
@@ -73,22 +74,45 @@ namespace Neo.SmartContract
             return Storage.Get(Storage.CurrentContext, address).AsBigInteger();
         }
 
-        public static bool Transfer(byte[] from, byte[] to, BigInteger amount)
+        public static bool Transfer(byte[] from, byte[] to, BigInteger amount, byte[] callscript)
         {
-            if (amount <= 0) return false;
-            if (!Runtime.CheckWitness(from)) return false;
-            if (from == to) return true;
+            if (from.Length != 20 || to.Length != 20)
+                throw new InvalidOperationException("The parameters from and to SHOULD be 20-byte addresses.");
+            if (amount <= 0)
+                return false;
+            if (!IsPayable(to))
+                return false;
+            if (!Runtime.CheckWitness(from) && from.TryToBigInteger() != callscript.TryToBigInteger())
+                return false;
 
             BigInteger balance = Storage.Get(Storage.CurrentContext, from).AsBigInteger();
-            if (balance < amount) return false;
+            if (balance < amount)
+                return false;
+            if (from == to)
+                return true;
 
-            if (balance == amount) Storage.Delete(Storage.CurrentContext, from);
-            else Storage.Put(Storage.CurrentContext, from, balance - amount);
+            if (balance == amount)
+                Storage.Delete(Storage.CurrentContext, from);
+            else
+                Storage.Put(Storage.CurrentContext, from, balance - amount);
 
             BigInteger receiverBalance = Storage.Get(Storage.CurrentContext, to).AsBigInteger();
             Storage.Put(Storage.CurrentContext, to, receiverBalance + amount);
             Transferred(from, to, amount);
             return true;
+        }
+        private static bool IsPayable(byte[] to)
+        {
+            var c = Blockchain.GetContract(to);
+            return c == null || c.IsPayable;
+        }
+    }
+
+    public static class Helper
+    {
+        public static BigInteger TryToBigInteger(this byte[] value)
+        {
+            return value?.ToBigInteger() ?? 0;
         }
     }
 }

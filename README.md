@@ -13,19 +13,31 @@
 
 ## Current deployed contracts
 
-### Devnet Legacy
+### Devnet Legacy LockProxy
 
-- Address: AGcPYW5PpnhdT4SnkHpxLT7L1JHKsuTMMK
-- Big Endian ScriptHash: 0xe339df1177666d17308a06dc9386e8d82fec2c09
-- Little Endian ScriptHash: 092cec2fd8e88693dc068a30176d667711df39e3
+- Address: AKr5QcNkWBRCp7MvoLaSjduyYygJtwygDC
+- Big Endian ScriptHash: 0x9d6403718883f02f57af6e9e69dfd3adf4fbab2c
+- Little Endian ScriptHash: 2cabfbf4add3df699e6eaf572ff083887103649d
 
-### Devnet Permissionless
+### Devnet Permissionless LockProxy
 
-- Address: AW5h2a4SKi9gX2t3S6NL5fJtMyFDKFx77J
-- Big Endian ScriptHash: 0xf182e806c6e79cc086751904bf0f151d3562f09c
-- Little Endian ScriptHash: 9cf062351d150fbf04197586c09ce7c606e882f1
+- Address: AJjGh9yY1MpbtBvD8rDDLKpyT3bizT3XA3
+- Big Endian ScriptHash: 0xbbb779eebba4bb48d712a0664d5c9513fd5d6a20
+- Little Endian ScriptHash: 206a5dfd13955c4d66a012d748bba4bbee79b7bb
 
-### Mainnet Legacy
+### Devnet SWTH Token
+
+- Address: ATK41UFV9sFGxoZNH9Uvvzsv9JT62zULtS
+- Big Endian ScriptHash: 0x040dd0556fcd21a5ac36c383952dca1b88ed8e7e
+- Little Endian ScriptHash: 7e8eed881bca2d9583c336aca521cd6f55d00d04
+
+### Devnet SWTH-N Token
+
+- Address: AWRkndPJZmgX3KqY9dJTCL4h9LAqhDpeUQ
+- Big Endian ScriptHash: 0x0547d2f308e1c8a0eb9994febe4c6d5a5ad7bba0
+- Little Endian ScriptHash: a0bbd75a5a6d4cbefe9499eba0c8e108f3d24705
+
+### Mainnet Legacy LockProxy
 
 - Address: AHwoWtUgwruKoGZ8hLrEHr1erESfd2Lf9Z
 - Big Endian ScriptHash: 0xcd19745dbf1305f206978ddcfdcb7fca6ef6d017

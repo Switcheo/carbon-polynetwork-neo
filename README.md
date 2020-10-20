@@ -45,6 +45,18 @@ This is the repository contains the Neo deposit contracts for Switcheo TradeHub.
 - Big Endian ScriptHash: 0xcd19745dbf1305f206978ddcfdcb7fca6ef6d017
 - Little Endian ScriptHash: 17d0f66eca7fcbfddc8d9706f20513bf5d7419cd
 
+### Mainnet Permissionless LockProxy
+
+- Address: AJedCGpz28puGEA75nUNZUCEechim7SHua
+- Big Endian ScriptHash: 0x164d669f0543441fba277b87cdc80c76cd66891f
+- Little Endian ScriptHash: 1f8966cd760cc8cd877b27ba1f4443059f664d16
+
+### MainNet SWTH-N Token
+
+- Address: AM2bRtiLMa9FoD5txrSp9DQhukAtQVjQaQ
+- Big Endian ScriptHash: 0x3e09e602eeeb401a2fec8e8ea137d59aae54a139
+- Little Endian ScriptHash: 39a154ae9ad537a18e8eec2f1a40ebee02e6093e
+
 ### Utils
 
 - [Address Converter](https://neocompiler.io/#!/ecolab/conversor)

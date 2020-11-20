@@ -1,4 +1,6 @@
-# Switcheo <> Polychain LockProxy for Neo
+# Switcheo TradeHub Neo Deposit Contract
+
+This is the repository contains the Neo deposit contracts for Switcheo TradeHub.
 
 ## Deployment
 

@@ -1,6 +1,6 @@
-# Switcheo TradeHub Neo Deposit Contract
+# Carbon - Neo Contracts
 
-This is the repository contains the Neo deposit contracts for Switcheo TradeHub.
+This repository contains the Neo (2.0) deposit contracts for Carbon using the Polynetwork bridge, as well as the contracts for the wrapped native token of Carbon (Switcheo - SWTH) on Neo (2.0) that is controlled by this bridge.
 
 ## Deployment
 

@@ -1,6 +1,6 @@
 # Carbon - Neo Contracts
 
-This repository contains the Neo (2.0) deposit contracts for Carbon using the Polynetwork bridge, as well as the contracts for the wrapped native token of Carbon (Switcheo - SWTH) on Neo (2.0) that is controlled by this bridge.
+This is the repository contains the  Neo (2.0) deposit and wrapped native token (SWTH) contracts for Carbon via the Polynetwork bridge.
 
 ## Deployment
 

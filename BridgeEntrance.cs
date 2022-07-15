@@ -149,7 +149,7 @@ namespace BridgeEntrance
         public static bool AssetIsRegistered(byte[] assetHash, byte[] nativeLockProxy, byte[] nativeAssetHash)
         {
             var lockProxy = (DynCall)LockProxyScriptHash.ToDelegate();
-            bool result = (bool)lockProxy("assetIsRegistered", new object[] { assetHash, nativeLockProxy, nativeAssetHash });
+            bool result = (bool)lockProxy("AssetIsRegistered", new object[] { assetHash, nativeLockProxy, nativeAssetHash });
             return result;
         }
 

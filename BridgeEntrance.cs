@@ -22,7 +22,7 @@ namespace BridgeEntrance
         private static readonly byte[] CCMCScriptHash = "1d012718c07eca226f5b5916fd9d8ff887a5df42".HexToBytes(); 
         // little endian
         // MainNet: 1f8966cd760cc8cd877b27ba1f4443059f664d16
-        private static readonly byte[] LockProxyScriptHash = "1f8966cd760cc8cd877b27ba1f4443059f664d16".HexToBytes(); 
+        private static readonly byte[] lockProxyScriptHash = "1f8966cd760cc8cd877b27ba1f4443059f664d16".HexToBytes(); 
         // Dynamic Call
         private delegate object DynCall(string method, object[] args); // dynamic call
 
@@ -119,7 +119,7 @@ namespace BridgeEntrance
             // transfer asset from fromAddress to proxy contract address, use dynamic call to call nep5 token's contract "transfer"
             byte[] currentHash = ExecutionEngine.ExecutingScriptHash; // this proxy contract hash
             var nep5Contract = (DynCall)fromAssetHash.ToDelegate();
-            bool success = (bool)nep5Contract("transfer", new object[] { fromAddress, currentHash, callAmount });
+            bool success = (bool)nep5Contract("transfer", new object[] { fromAddress, lockProxyScriptHash, callAmount });
             if (!success)
             {
                 Runtime.Notify("Failed to transfer NEP5 token to proxy contract.");
@@ -148,7 +148,7 @@ namespace BridgeEntrance
 
         public static bool AssetIsRegistered(byte[] assetHash, byte[] nativeLockProxy, byte[] nativeAssetHash)
         {
-            var lockProxy = (DynCall)LockProxyScriptHash.ToDelegate();
+            var lockProxy = (DynCall)lockProxyScriptHash.ToDelegate();
             bool result = (bool)lockProxy("AssetIsRegistered", new object[] { assetHash, nativeLockProxy, nativeAssetHash });
             return result;
         }

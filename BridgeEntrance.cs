@@ -38,7 +38,7 @@ namespace BridgeEntrance
                 if (method == "getVersion")
                     return GetVersion();
                 if (method == "lock")
-                    return Lock((byte[])args[0], (byte[])args[1], (byte[])args[2], (byte[])args[3], (byte[])args[4], (byte[])args[5], (byte[])args[6], (BigInteger)args[7], (BigInteger)args[8], (BigInteger)args[9], (byte[])args[10]);
+                    return Lock((byte[])args[0], (byte[])args[1], (byte[])args[2], (byte[])args[3], (byte[])args[4], (byte[])args[5], (byte[])args[6], (BigInteger)args[7], (BigInteger)args[8], (byte[])args[9]);
             }
             return false;
         }
@@ -51,7 +51,7 @@ namespace BridgeEntrance
 
         // used to lock asset into proxy contract
         [DisplayName("lock")]
-        public static bool Lock(byte[] fromAssetHash, byte[] fromAddress, byte[] targetProxyHash, byte[] recoveryAddress, byte[] fromAssetDenom, byte[] toAssetDenom, byte[] toAddress, BigInteger amount, BigInteger feeAmount, BigInteger callAmount, byte[] feeAddress)
+        public static bool Lock(byte[] fromAssetHash, byte[] fromAddress, byte[] targetProxyHash, byte[] recoveryAddress, byte[] fromAssetDenom, byte[] toAssetDenom, byte[] toAddress, BigInteger amount, BigInteger feeAmount, byte[] feeAddress)
         {
             if (fromAssetHash.Length != 20)
             {
@@ -98,11 +98,6 @@ namespace BridgeEntrance
                 Runtime.Notify("The parameter feeAmount SHOULD not be less than 0.");
                 return false;
             }
-            if (callAmount <= 0)
-            {
-                Runtime.Notify("The parameter callAmount SHOULD not be less than 0.");
-                return false;
-            }
 
             if (!AssetIsRegistered(fromAssetHash, targetProxyHash, fromAssetDenom))
             {
@@ -119,7 +114,7 @@ namespace BridgeEntrance
             // transfer asset from fromAddress to proxy contract address, use dynamic call to call nep5 token's contract "transfer"
             byte[] currentHash = ExecutionEngine.ExecutingScriptHash; // this proxy contract hash
             var nep5Contract = (DynCall)fromAssetHash.ToDelegate();
-            bool success = (bool)nep5Contract("transfer", new object[] { fromAddress, lockProxyScriptHash, callAmount });
+            bool success = (bool)nep5Contract("transfer", new object[] { fromAddress, lockProxyScriptHash, amount });
             if (!success)
             {
                 Runtime.Notify("Failed to transfer NEP5 token to proxy contract.");
